@@ -16,7 +16,11 @@
       "Bash(npm run:*)",
       "Bash(node -e \"const icons = require\\('lucide-react'\\); const matches = Object.keys\\(icons\\).filter\\(k => k.toLowerCase\\(\\).includes\\('git'\\) || k.toLowerCase\\(\\).includes\\('code'\\)\\); console.log\\(matches.slice\\(0,20\\)\\);\")",
       "Bash(npx tsc:*)",
-      "Bash(node -e \"const h = require\\('usehooks-ts'\\); console.log\\(Object.keys\\(h\\).filter\\(k=>k.includes\\('ebounce'\\)||k.includes\\('nterval'\\)||k.includes\\('edia'\\)||k.includes\\('ocal'\\)||k.includes\\('opy'\\)||k.includes\\('oggle'\\)\\)\\)\")"
+      "Bash(node -e \"const h = require\\('usehooks-ts'\\); console.log\\(Object.keys\\(h\\).filter\\(k=>k.includes\\('ebounce'\\)||k.includes\\('nterval'\\)||k.includes\\('edia'\\)||k.includes\\('ocal'\\)||k.includes\\('opy'\\)||k.includes\\('oggle'\\)\\)\\)\")",
+      "Bash(npx @playwright/mcp@latest --version)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('mcpServers', {}\\), indent=2\\)\\)\")",
+      "mcp__playwright",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)"
     ]
   }
 }
