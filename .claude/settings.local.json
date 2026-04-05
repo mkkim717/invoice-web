@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest list)",
+      "Bash(npx shadcn@latest --help)",
+      "Bash(npx shadcn@latest add --help)",
+      "Bash(npx shadcn@latest search shadcn)",
+      "Bash(npx shadcn@latest search @shadcn)",
+      "Bash(npx shadcn@latest search @shadcn --limit 200)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest add card badge separator skeleton spinner -y)",
+      "Bash(npx shadcn@latest add sheet dropdown-menu tabs breadcrumb -y)",
+      "Bash(npx shadcn@latest add dialog sonner alert tooltip popover -y)",
+      "Bash(npx shadcn@latest add input label select checkbox textarea switch -y)",
+      "Bash(npx shadcn@latest add table avatar scroll-area progress -y)",
+      "Bash(npm run:*)",
+      "Bash(node -e \"const icons = require\\('lucide-react'\\); const matches = Object.keys\\(icons\\).filter\\(k => k.toLowerCase\\(\\).includes\\('git'\\) || k.toLowerCase\\(\\).includes\\('code'\\)\\); console.log\\(matches.slice\\(0,20\\)\\);\")",
+      "Bash(npx tsc:*)",
+      "Bash(node -e \"const h = require\\('usehooks-ts'\\); console.log\\(Object.keys\\(h\\).filter\\(k=>k.includes\\('ebounce'\\)||k.includes\\('nterval'\\)||k.includes\\('edia'\\)||k.includes\\('ocal'\\)||k.includes\\('opy'\\)||k.includes\\('oggle'\\)\\)\\)\")"
+    ]
+  }
+}
