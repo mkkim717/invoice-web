@@ -8,7 +8,6 @@ export const SITE_CONFIG = {
 /** 네비게이션 링크 목록 */
 export const NAV_LINKS = [
   { href: "/", label: "홈" },
-  { href: "/examples", label: "예제" },
   { href: "/about", label: "소개" },
   { href: "/dashboard", label: "대시보드" },
 ] as const;
