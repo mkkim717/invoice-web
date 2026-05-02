@@ -45,3 +45,6 @@ next-env.d.ts
 playwright-test.png
 playwright-interaction-test.png
 page-*.png
+
+# claude code (로컬 전용 설정)
+.claude/settings.local.json
