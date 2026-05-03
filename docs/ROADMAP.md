@@ -12,14 +12,14 @@
 
 ## 전체 진행률
 
-**Phase 1 (MVP) 진행률: 약 15% (2 / 13)**
+**Phase 1 (MVP) 진행률: 약 14% (2 / 14)**
 
 - 완료: 프로젝트 문서화(README, PRD), UI 프레임워크/스타일 시스템 초기 설정
 - 진행 중: 없음
 - 대기: 노션 API 연동, 견적서 페이지 구현, PDF 다운로드, 배포 등
 
 ```
-Phase 1 (MVP)        ▓▓░░░░░░░░░░░░░░░░░░  15%  (TASK-001 ~ TASK-013)
+Phase 1 (MVP)        ▓▓░░░░░░░░░░░░░░░░░░  14%  (TASK-001 ~ TASK-013, TASK-004.5)
 Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░   0%  (TASK-014 ~ TASK-018)
 ```
 
@@ -102,6 +102,19 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - Zod 스키마로 런타임 파싱/검증 (`InvoiceSchema`, `InvoiceItemSchema`)
     - 상태 enum: `draft | sent | accepted | expired`
     - **`any` 타입 사용 금지 원칙 준수**
+
+- **TASK-004.5: 공용 유틸리티 및 shadcn/ui 베이스 컴포넌트 셋업** [TODO] - 우선순위
+  - 관련 파일
+    - `lib/utils.ts` (기존 `cn()` 확장)
+    - `lib/format.ts` (포맷팅 유틸리티 전용 모듈)
+    - `components/common/LoadingSpinner.tsx`
+    - `components/common/EmptyState.tsx`
+    - `components/common/ErrorMessage.tsx`
+  - 구현 사항
+    - `lib/format.ts` 신설: `formatKRW`, `formatDate`, `formatQuantity` 등 공용 포맷터
+    - shadcn/ui 베이스 컴포넌트 추가 설치: `Badge`, `Skeleton`, `Separator` 등 미설치 항목
+    - `components/common/` 디렉토리 신설 — 도메인 비종속 공용 컴포넌트 (`LoadingSpinner`, `EmptyState`, `ErrorMessage`)
+    - **이 Task 완료 후 TASK-005(도메인 컴포넌트)에서 중복 코드 없이 재사용 가능**
 
 ### Phase 1-C: UI/UX 완성 (더미 데이터 활용) (대기)
 
