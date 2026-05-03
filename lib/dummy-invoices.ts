@@ -1,0 +1,57 @@
+import type { Invoice } from "@/lib/types";
+
+export const DUMMY_INVOICES: Invoice[] = [
+  {
+    id: "dummy-001",
+    title: "웹사이트 디자인 견적서",
+    slug: "web-design-2024",
+    client_name: "주식회사 테크스타트",
+    issue_date: "2024-11-01",
+    due_date: "2024-11-30",
+    status: "sent",
+    total_amount: 4500000,
+    memo: null,
+    items: [
+      { name: "UI/UX 디자인", quantity: 1, unit_price: 1500000, amount: 1500000 },
+      { name: "반응형 퍼블리싱", quantity: 1, unit_price: 2000000, amount: 2000000 },
+      { name: "디자인 시스템 구축", quantity: 1, unit_price: 1000000, amount: 1000000 },
+    ],
+    sender_name: "김민준 (프리랜서)",
+    sender_contact: "hello@minjun.dev",
+  },
+  {
+    id: "dummy-002",
+    title: "모바일 앱 개발 견적서",
+    slug: "mobile-app-2024",
+    client_name: "(주)그린커머스",
+    issue_date: "2024-10-15",
+    due_date: null,
+    status: "accepted",
+    total_amount: 12000000,
+    memo: "계약금 30% 선입금 후 착수 예정입니다.",
+    items: [
+      { name: "iOS 앱 개발", quantity: 1, unit_price: 5000000, amount: 5000000 },
+      { name: "Android 앱 개발", quantity: 1, unit_price: 5000000, amount: 5000000 },
+      { name: "API 연동 및 테스트", quantity: 1, unit_price: 2000000, amount: 2000000 },
+    ],
+    sender_name: "이서연 스튜디오",
+    sender_contact: null,
+  },
+  {
+    id: "dummy-003",
+    title: "브랜드 아이덴티티 견적서",
+    slug: "branding-2024",
+    client_name: "카페 온도",
+    issue_date: "2024-08-01",
+    due_date: "2024-08-31",
+    status: "expired",
+    total_amount: 2200000,
+    memo: null,
+    items: [
+      { name: "로고 디자인 (시안 3종)", quantity: 1, unit_price: 1200000, amount: 1200000 },
+      { name: "브랜드 가이드라인", quantity: 1, unit_price: 1000000, amount: 1000000 },
+    ],
+    sender_name: "박지호 디자인",
+    sender_contact: "jihho@design.kr",
+  },
+];

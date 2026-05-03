@@ -12,14 +12,14 @@
 
 ## 전체 진행률
 
-**Phase 1 (MVP) 진행률: 약 14% (2 / 14)**
+**Phase 1 (MVP) 진행률: 약 79% (11 / 14)**
 
-- 완료: 프로젝트 문서화(README, PRD), UI 프레임워크/스타일 시스템 초기 설정
+- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR)
 - 진행 중: 없음
-- 대기: 노션 API 연동, 견적서 페이지 구현, PDF 다운로드, 배포 등
+- 대기: PDF 인쇄 품질 개선, 에러 처리 강화, 배포
 
 ```
-Phase 1 (MVP)        ▓▓░░░░░░░░░░░░░░░░░░  14%  (TASK-001 ~ TASK-013, TASK-004.5)
+Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░  79%  (TASK-001 ~ TASK-013, TASK-004.5)
 Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░   0%  (TASK-014 ~ TASK-018)
 ```
 
@@ -78,127 +78,120 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - [x] 공통 레이아웃 컴포넌트 (`components/layout/Header`, `Footer`, `ThemeToggle`)
     - [x] 경로 alias `@/*` 설정 (`tsconfig.json`)
 
-### Phase 1-B: 애플리케이션 골격 구축 (대기)
+### Phase 1-B: 애플리케이션 골격 구축 (완료)
 
-- **TASK-003: 라우팅 구조 및 빈 페이지 스캐폴드** [TODO] - 우선순위
+- **TASK-003: 라우팅 구조 및 빈 페이지 스캐폴드** [완료]
   - 관련 파일
-    - `app/page.tsx` (랜딩 페이지 - 기존 스캐폴드 정리)
-    - `app/invoice/[slug]/page.tsx` (견적서 상세, 빈 껍데기)
+    - `app/invoice/[slug]/page.tsx` (견적서 상세, placeholder UI)
     - `app/invoice/[slug]/not-found.tsx` (견적서 없음)
     - `app/invoice/[slug]/error.tsx` (페이지 단위 에러)
     - `app/error.tsx` (전역 에러 폴백)
-  - 구현 사항
-    - Next.js 16 App Router 기반의 모든 핵심 라우트 빈 파일 생성
-    - 각 페이지에 placeholder UI만 두고 데이터 페칭은 추후 작업에서 구현
-    - `[slug]` 동적 라우팅 시그니처 검증 (`params: Promise<{ slug: string }>`)
-    - `app/about/`, `app/dashboard/` 디렉토리 정리 또는 후속 단계 고려
+  - 완료 항목
+    - [x] `app/invoice/[slug]/page.tsx` — async 서버 컴포넌트, `params: Promise<{ slug: string }>` await 처리, `revalidate = 60`, Skeleton placeholder UI
+    - [x] `app/invoice/[slug]/not-found.tsx` — 한국어 안내 메시지, 홈 링크
+    - [x] `app/invoice/[slug]/error.tsx` — `"use client"`, error/reset props, 다시 시도 + 홈 버튼, `error.digest` 표시
+    - [x] `app/error.tsx` — `"use client"`, 전역 에러 폴백, 홈 링크
 
-- **TASK-004: 타입 정의 및 데이터 인터페이스 설계** [TODO]
+- **TASK-004: 타입 정의 및 데이터 인터페이스 설계** [완료]
   - 관련 파일
     - `lib/types.ts` (`Invoice`, `InvoiceItem`, `InvoiceStatus` 등)
     - `lib/notion-schema.ts` (노션 속성 ↔ 도메인 모델 매핑 스키마)
-  - 구현 사항
-    - 노션 DB 속성 스키마(slug, client_name, issue_date, status, total_amount, items, sender_name, memo)에 대응하는 TypeScript 인터페이스 정의
-    - Zod 스키마로 런타임 파싱/검증 (`InvoiceSchema`, `InvoiceItemSchema`)
-    - 상태 enum: `draft | sent | accepted | expired`
-    - **`any` 타입 사용 금지 원칙 준수**
+  - 완료 항목
+    - [x] `InvoiceItemSchema`, `InvoiceStatusSchema`, `InvoiceSchema` Zod v4 스키마 정의
+    - [x] `z.infer<>` 로 TypeScript 타입 추출 — 단일 소스 유지
+    - [x] 노션 API 원시 응답 속성 타입 6종 + `NotionInvoicePropertiesSchema` 전체 매핑
+    - [x] `any` 타입 없음, TypeScript strict 모드 통과
 
-- **TASK-004.5: 공용 유틸리티 및 shadcn/ui 베이스 컴포넌트 셋업** [TODO] - 우선순위
+- **TASK-004.5: 공용 유틸리티 및 shadcn/ui 베이스 컴포넌트 셋업** [완료]
   - 관련 파일
-    - `lib/utils.ts` (기존 `cn()` 확장)
     - `lib/format.ts` (포맷팅 유틸리티 전용 모듈)
     - `components/common/LoadingSpinner.tsx`
     - `components/common/EmptyState.tsx`
     - `components/common/ErrorMessage.tsx`
-  - 구현 사항
-    - `lib/format.ts` 신설: `formatKRW`, `formatDate`, `formatQuantity` 등 공용 포맷터
-    - shadcn/ui 베이스 컴포넌트 추가 설치: `Badge`, `Skeleton`, `Separator` 등 미설치 항목
-    - `components/common/` 디렉토리 신설 — 도메인 비종속 공용 컴포넌트 (`LoadingSpinner`, `EmptyState`, `ErrorMessage`)
-    - **이 Task 완료 후 TASK-005(도메인 컴포넌트)에서 중복 코드 없이 재사용 가능**
+  - 완료 항목
+    - [x] `lib/format.ts` — `formatKRW`, `formatDate`, `formatQuantity` (Intl 객체 모듈 레벨 캐싱)
+    - [x] `LoadingSpinner` — `ui/spinner.tsx` 래퍼, `size: 'sm' | 'md' | 'lg'` prop
+    - [x] `EmptyState` — icon/title/description/action 선택 props, 서버 컴포넌트
+    - [x] `ErrorMessage` — `Alert variant="destructive"` 활용, 서버 컴포넌트
 
-### Phase 1-C: UI/UX 완성 (더미 데이터 활용) (대기)
+### Phase 1-C: UI/UX 완성 (더미 데이터 활용) (완료)
 
-- **TASK-005: 견적서 UI 컴포넌트 라이브러리 구현** [TODO]
+- **TASK-005: 견적서 UI 컴포넌트 라이브러리 구현** [완료]
   - 관련 파일
-    - `components/invoice/InvoiceHeader.tsx` (서버 컴포넌트)
-    - `components/invoice/SenderInfo.tsx` (서버 컴포넌트)
-    - `components/invoice/ClientInfo.tsx` (서버 컴포넌트)
-    - `components/invoice/ItemsTable.tsx` (서버 컴포넌트)
-    - `components/invoice/TotalSection.tsx` (서버 컴포넌트)
-    - `components/invoice/MemoSection.tsx` (서버 컴포넌트)
-    - `components/invoice/PdfDownloadButton.tsx` (클라이언트 컴포넌트)
-    - `components/invoice/InvoiceStatusBadge.tsx` (상태 배지)
-  - 구현 사항
-    - shadcn/ui 기반의 카드/테이블/버튼 조합으로 견적서 레이아웃 구성
-    - 상단: 발행자/수신자 정보, 발행일, 상태 배지
-    - 중앙: 품목 테이블 (품목명, 수량, 단가, 합계)
-    - 하단: 총액, VAT, 메모 섹션
-    - PDF 다운로드 버튼은 클라이언트 컴포넌트 (`window.print()` 호출)
-    - **반응형 디자인 필수 (모바일/태블릿/데스크톱)**
+    - `components/invoice/InvoiceStatusBadge.tsx` — status → Badge variant 매핑
+    - `components/invoice/InvoiceHeader.tsx` — 제목·발행일·유효기간·상태배지
+    - `components/invoice/SenderInfo.tsx` — 발신자명·연락처 (null 조건부)
+    - `components/invoice/ClientInfo.tsx` — 고객사명
+    - `components/invoice/ItemsTable.tsx` — shadcn Table, th scope="col", formatKRW
+    - `components/invoice/TotalSection.tsx` — 합계 금액, aria-label
+    - `components/invoice/MemoSection.tsx` — memo null 시 return null
+    - `components/invoice/PdfDownloadButton.tsx` — "use client", window.print()
+  - 완료 항목
+    - [x] 8개 컴포넌트 생성 (PdfDownloadButton만 클라이언트, 나머지 서버)
+    - [x] Invoice/InvoiceItem 타입 Pick으로 최소 의존성
+    - [x] formatKRW/formatDate/formatQuantity 재사용
+    - [x] 시맨틱 HTML (caption, th scope, aria-label)
 
-- **TASK-006: 더미 데이터 기반 견적서 페이지 UI 완성** [TODO]
+- **TASK-006: 더미 데이터 기반 견적서 페이지 UI 완성** [완료]
   - 관련 파일
-    - `app/invoice/[slug]/page.tsx` (더미 데이터 주입 버전)
-    - `lib/dummy-invoices.ts` (목 데이터)
-  - 구현 사항
-    - `lib/dummy-invoices.ts`에 샘플 견적서 3~5건 정의
-    - `slug` 파라미터로 더미 데이터 매칭 후 렌더링
-    - 매칭 실패 시 `notFound()` 호출하여 not-found 페이지 표출
-    - 인쇄용 CSS (`@media print`) 적용 — 헤더/푸터 숨김, 색상/여백 조정
-    - 다크/라이트 테마에서 인쇄 시 항상 라이트로 강제
+    - `lib/dummy-invoices.ts` — Invoice[] 3건 (sent/accepted/expired)
+    - `app/invoice/[slug]/page.tsx` — 컴포넌트 조합, generateMetadata
+    - `app/globals.css` — @media print 규칙
+  - 완료 항목
+    - [x] 더미 데이터 3건: web-design-2024, mobile-app-2024, branding-2024
+    - [x] slug 매칭 실패 시 notFound() 호출
+    - [x] generateMetadata로 동적 title 설정
+    - [x] @media print: .no-print, header/footer 숨김, 흰 배경, @page margin 1.5cm
 
-- **TASK-007: 랜딩 페이지 UI 완성** [TODO]
+- **TASK-007: 랜딩 페이지 UI 완성** [완료]
   - 관련 파일
-    - `app/page.tsx`
-    - `components/landing/HeroSection.tsx`
-    - `components/landing/FeatureGrid.tsx`
-  - 구현 사항
-    - 서비스 소개 Hero 섹션 (타이틀, 서브타이틀, CTA)
-    - 핵심 기능 3~4개 카드 그리드
-    - 다크/라이트 테마 모두에서 자연스러운 색감 검증
-    - 반응형 (모바일 우선) 적용
+    - `components/landing/HeroSection.tsx` — 서비스 소개 Hero
+    - `components/landing/FeatureGrid.tsx` — 기능 카드 3개
+    - `app/page.tsx` — Invoice 서비스 소개로 전면 교체
+  - 완료 항목
+    - [x] 스타터킷 내용 완전 제거, Invoice 서비스 소개로 교체
+    - [x] 기능 카드 3개 (노션DB 연동 / URL 공유 / PDF 다운로드)
+    - [x] 사용방법 3단계 섹션 추가
+    - [x] 반응형 그리드 (1열 → 3열)
 
-### Phase 1-D: 핵심 기능 구현 (대기)
+### Phase 1-D: 핵심 기능 구현
 
-- **TASK-008: 노션 API 클라이언트 설치 및 환경 변수 설정** [TODO] - 우선순위
+- **TASK-008: 노션 API 클라이언트 설치 및 환경 변수 설정** [완료]
   - 관련 파일
-    - `package.json` (`@notionhq/client` 의존성 추가)
+    - `package.json` (`@notionhq/client@2` 의존성)
     - `.env.local` (`NOTION_TOKEN`, `NOTION_DATABASE_ID`)
-    - `.env.example` (커밋용 예시)
     - `lib/env.ts` (Zod로 환경 변수 검증)
-  - 구현 사항
-    - `npm install @notionhq/client` 실행
-    - 노션 Integration 토큰 발급 후 DB 연결
-    - 노션 DB 스키마(slug, client_name, ...) 생성 가이드 문서화 (`docs/notion-db-setup.md`)
-    - 환경 변수 누락 시 빌드 타임에 명확한 오류 발생하도록 Zod 검증
+    - `docs/notion-db-setup.md` (DB 구성 가이드)
+  - 완료 항목
+    - [x] `@notionhq/client@2` 설치 (v5는 API 호환성 문제로 v2 사용)
+    - [x] 노션 Integration 생성 및 DB 연결 확인
+    - [x] `lib/env.ts` — Zod 검증, 누락 시 빌드 타임 오류 발생
+    - [x] `docs/notion-db-setup.md` — 2-DB 구조(견적서 DB + 품목 DB) 가이드
 
-- **TASK-009: 노션 API 연동 레이어 구현** [TODO]
+- **TASK-009: 노션 API 연동 레이어 구현** [완료]
   - 관련 파일
     - `lib/notion.ts` (노션 클라이언트 싱글톤, `getInvoiceBySlug`, `listInvoices`)
     - `lib/notion-mapper.ts` (노션 페이지 → `Invoice` 도메인 모델 변환)
-  - 구현 사항
-    - `getInvoiceBySlug(slug: string): Promise<Invoice | null>` 구현
-    - 노션 `databases.query`로 `slug` 필터링
-    - `items` Rich Text/JSON 필드 파싱 → `InvoiceItem[]`
-    - 노션 API 오류는 명확한 도메인 오류로 변환 (`NotionApiError`)
-    - **Playwright MCP로 다음 시나리오 검증**
-      - 유효한 slug 조회 → 정상 데이터 반환
-      - 존재하지 않는 slug → null 반환
-      - 노션 API 실패 → 에러 페이지 표시
+    - `lib/notion-schema.ts` (노션 속성 타입 Zod 스키마)
+  - 완료 항목
+    - [x] `getInvoiceBySlug(slug)` — `databases.query` + slug 필터
+    - [x] `listInvoices()` — status 필터(draft 제외), 날짜순 정렬
+    - [x] `items` Relation → 품목 페이지 병렬 조회(`pages.retrieve`) → `InvoiceItem[]`
+    - [x] `total_amount` — rollup/number 속성 또는 items 합산으로 폴백
+    - [x] `NotionApiError` — 도메인 오류 클래스
+    - [x] 스크립트 검증: slug 조회, items 조회, 빈 결과 반환 모두 정상
 
-- **TASK-010: 견적서 페이지를 실제 데이터와 연결 (ISR 적용)** [TODO]
+- **TASK-010: 견적서 페이지를 실제 데이터와 연결 (ISR 적용)** [완료]
   - 관련 파일
     - `app/invoice/[slug]/page.tsx` (더미 → 실제 노션 데이터로 교체)
     - `app/invoice/[slug]/not-found.tsx`
-  - 구현 사항
-    - `getInvoiceBySlug(slug)` 호출 후 데이터가 없으면 `notFound()`
-    - ISR 설정: `export const revalidate = 60`
-    - 메타데이터(`generateMetadata`) 동적 생성 (`title`, `description`, OG 태그)
-    - 노션 API 오류 발생 시 `app/invoice/[slug]/error.tsx`로 폴백
-    - **Playwright MCP E2E 테스트**
-      - 실제 노션 DB의 슬러그로 조회 → UI 정상 렌더링
-      - 잘못된 슬러그 접근 → not-found 페이지 표시
-      - 60초 후 ISR 재검증 동작 확인
+  - 완료 항목
+    - [x] `DUMMY_INVOICES` → `getInvoiceBySlug()` 실제 노션 API 호출로 교체
+    - [x] `draft` 상태 접근 시 `notFound()` 처리
+    - [x] `generateMetadata`에 `openGraph` 태그 (`title`, `description`) 추가
+    - [x] `MemoSection` 컴포넌트 렌더링 추가
+    - [x] `export const revalidate = 60` 유지 (ISR 60초 캐시)
+    - [x] 노션 API 오류는 catch 없이 `error.tsx`로 자연 전파
 
 - **TASK-011: PDF 다운로드 기능 구현** [TODO]
   - 관련 파일
