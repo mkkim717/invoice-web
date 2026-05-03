@@ -1,0 +1,151 @@
+{
+  "tasks": [
+    {
+      "id": "c36db18f-2dff-4a8a-83d1-8f997b061fb2",
+      "name": "TASK-003: 라우팅 구조 및 빈 페이지 스캐폴드",
+      "description": "Next.js 16 App Router 기반으로 invoice 서비스의 핵심 라우트 파일을 생성한다. 데이터 페칭 없이 placeholder UI만 구현하며, 각 파일의 올바른 Next.js 16 시그니처를 확립한다.\n\n생성 파일:\n- app/invoice/[slug]/page.tsx: 동적 라우트 서버 컴포넌트, params는 Promise<{slug:string}> await 처리, export const revalidate = 60, placeholder UI\n- app/invoice/[slug]/not-found.tsx: 서버 컴포넌트, 견적서 없음 안내 + 홈 링크\n- app/invoice/[slug]/error.tsx: \"use client\" 필수, error/reset props 수신, 다시 시도 버튼\n- app/error.tsx: \"use client\" 필수, 전역 에러 폴백, 홈으로 이동 버튼",
+      "notes": "app/about/, app/dashboard/는 현재 NAV_LINKS에 포함된 스타터킷 데모 페이지이므로 삭제하지 않고 유지. not-found.tsx 파일명은 정확히 'not-found.tsx'여야 Next.js가 인식함.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2026-05-03T08:05:32.889Z",
+      "updatedAt": "2026-05-03T08:11:22.989Z",
+      "relatedFiles": [
+        {
+          "path": "app/invoice/[slug]/page.tsx",
+          "type": "CREATE",
+          "description": "견적서 조회 동적 라우트 페이지 (placeholder)"
+        },
+        {
+          "path": "app/invoice/[slug]/not-found.tsx",
+          "type": "CREATE",
+          "description": "견적서 없음 / draft 상태 처리 페이지"
+        },
+        {
+          "path": "app/invoice/[slug]/error.tsx",
+          "type": "CREATE",
+          "description": "견적서 페이지 에러 경계 (use client)"
+        },
+        {
+          "path": "app/error.tsx",
+          "type": "CREATE",
+          "description": "전역 에러 폴백 (use client)"
+        },
+        {
+          "path": "app/layout.tsx",
+          "type": "REFERENCE",
+          "description": "루트 레이아웃 구조 참고"
+        },
+        {
+          "path": "components/ui/button.tsx",
+          "type": "DEPENDENCY",
+          "description": "Button 컴포넌트"
+        },
+        {
+          "path": "lib/constants.ts",
+          "type": "REFERENCE",
+          "description": "SITE_CONFIG 참고"
+        }
+      ],
+      "implementationGuide": "1. app/invoice/[slug]/ 디렉토리 구조 생성\n2. page.tsx: async function InvoicePage({ params }: { params: Promise<{ slug: string }> }) → const { slug } = await params → placeholder div 반환, export const revalidate = 60\n3. not-found.tsx: 서버 컴포넌트, Link href=\"/\" 포함, 한국어 메시지\n4. error.tsx: \"use client\", props: { error: Error; reset: () => void }, Button onClick={reset}\n5. app/error.tsx: \"use client\", 전역 폴백, Button asChild Link href=\"/\"\n6. 모든 파일 컨테이너 패턴: mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8\n7. shadcn Button, Card 컴포넌트 활용",
+      "verificationCriteria": "1. npm run dev 실행 후 /invoice/test-slug 접근 시 placeholder 페이지 렌더링\n2. /invoice/test-slug 에서 존재하지 않는 slug notFound() 호출 시 not-found 페이지 표시\n3. error.tsx에 \"use client\" 선언 확인\n4. TypeScript 컴파일 오류 없음 (npm run build 또는 tsc --noEmit)\n5. params가 await로 처리됨 확인",
+      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
+      "summary": "4개 파일 모두 생성 완료. page.tsx: async 서버 컴포넌트, params Promise await 처리, revalidate=60, Skeleton placeholder UI. not-found.tsx: 서버 컴포넌트, 한국어 안내 메시지 + 홈 링크. error.tsx(slug): \"use client\", error/reset props, 다시 시도 + 홈 버튼. app/error.tsx: \"use client\", 전역 폴백, error.digest 표시. tsc --noEmit 오류 없음. 컨테이너 패턴·한국어 UI·shadcn 컴포넌트 활용 모두 준수.",
+      "completedAt": "2026-05-03T08:11:22.986Z"
+    },
+    {
+      "id": "6c90973c-090d-40ba-9bc4-f73c3401d336",
+      "name": "TASK-004: 타입 정의 및 데이터 인터페이스 설계",
+      "description": "Invoice 도메인의 TypeScript 타입과 Zod v4 런타임 스키마를 정의한다. any 타입 사용 금지 원칙을 준수하며, TypeScript 타입은 Zod schema에서 z.infer로 추출하여 단일 소스를 유지한다.\n\n생성 파일:\n- lib/types.ts: InvoiceStatus, InvoiceItem, Invoice 인터페이스 + Zod 스키마 + z.infer 타입 추출\n- lib/notion-schema.ts: 노션 API 원시 응답 구조 Zod 스키마 (rich_text, select, date, number 속성 타입)",
+      "notes": "Zod v4 문법 사용: z.nullable()은 z.string().nullable() 형태. z.infer<typeof Schema>로 타입 추출. z.enum()의 인자는 배열 리터럴. notion-schema.ts는 TASK-009(노션 API 연동)에서 실제 파싱에 사용될 예정이므로 정확한 노션 API 응답 구조 반영 필요.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2026-05-03T08:05:32.889Z",
+      "updatedAt": "2026-05-03T08:12:17.707Z",
+      "relatedFiles": [
+        {
+          "path": "lib/types.ts",
+          "type": "CREATE",
+          "description": "Invoice 도메인 타입 + Zod 스키마"
+        },
+        {
+          "path": "lib/notion-schema.ts",
+          "type": "CREATE",
+          "description": "노션 API 원시 응답 구조 Zod 스키마"
+        },
+        {
+          "path": "docs/PRD.md",
+          "type": "REFERENCE",
+          "description": "노션 DB 속성 스키마 및 Invoice 타입 명세",
+          "lineStart": 1,
+          "lineEnd": 80
+        }
+      ],
+      "implementationGuide": "lib/types.ts 구조:\n- import { z } from 'zod'\n- InvoiceItemSchema = z.object({ name: z.string(), quantity: z.number(), unit_price: z.number(), amount: z.number() })\n- InvoiceStatusSchema = z.enum(['draft', 'sent', 'accepted', 'expired'])\n- InvoiceSchema = z.object({ id: z.string(), title: z.string(), slug: z.string(), client_name: z.string(), issue_date: z.string(), due_date: z.string().nullable(), status: InvoiceStatusSchema, total_amount: z.number(), memo: z.string().nullable(), items: z.array(InvoiceItemSchema), sender_name: z.string(), sender_contact: z.string().nullable() })\n- export type InvoiceItem = z.infer<typeof InvoiceItemSchema>\n- export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>\n- export type Invoice = z.infer<typeof InvoiceSchema>\n\nlib/notion-schema.ts 구조:\n- NotionRichTextSchema = z.object({ plain_text: z.string() })\n- NotionRichTextPropertySchema = z.object({ rich_text: z.array(NotionRichTextSchema) })\n- NotionSelectPropertySchema = z.object({ select: z.object({ name: z.string() }).nullable() })\n- NotionDatePropertySchema = z.object({ date: z.object({ start: z.string() }).nullable() })\n- NotionNumberPropertySchema = z.object({ number: z.number().nullable() })\n- NotionTitlePropertySchema = z.object({ title: z.array(NotionRichTextSchema) })\n- NotionInvoicePropertiesSchema: 위 속성들을 조합한 전체 properties 스키마",
+      "verificationCriteria": "1. any 타입이 단 한 곳도 사용되지 않음\n2. TypeScript strict 모드에서 컴파일 오류 없음\n3. InvoiceStatus가 'draft' | 'sent' | 'accepted' | 'expired' 4개 값으로 제한됨\n4. Invoice 타입의 모든 필수/선택 필드가 PRD 명세와 일치\n5. z.infer로 추출된 타입이 TypeScript interface와 구조적으로 동일",
+      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
+      "summary": "lib/types.ts: InvoiceItemSchema·InvoiceStatusSchema·InvoiceSchema 정의, z.infer로 타입 추출, PRD 명세 11개 필드 완전 일치. lib/notion-schema.ts: Notion API 원시 응답 구조 6종 속성 스키마(RichText/Title/Select/Date/Number) + NotionInvoicePropertiesSchema 전체 매핑. any 타입 없음, tsc --noEmit 오류 없음, Zod v4 문법 준수.",
+      "completedAt": "2026-05-03T08:12:17.700Z"
+    },
+    {
+      "id": "fdae283b-f668-4ada-83d5-4daabafdb40e",
+      "name": "TASK-004.5: 공용 유틸리티 및 공용 컴포넌트 셋업",
+      "description": "도메인 비종속 공용 포맷팅 유틸리티와 재사용 가능한 UI 컴포넌트를 구축한다. 이후 TASK-005(견적서 UI 컴포넌트)에서 중복 없이 재사용할 수 있도록 기반을 마련한다.\n\n생성/수정 파일:\n- lib/format.ts: formatKRW, formatDate, formatQuantity 포맷팅 함수\n- components/common/LoadingSpinner.tsx: 로딩 표시 컴포넌트\n- components/common/EmptyState.tsx: 빈 상태 안내 컴포넌트\n- components/common/ErrorMessage.tsx: 에러 메시지 표시 컴포넌트",
+      "notes": "components/ui/spinner.tsx가 이미 존재하므로 LoadingSpinner는 이를 감싸는 래퍼로 구현. Badge/Skeleton/Separator는 이미 components/ui/에 설치되어 있으므로 재설치 불필요. common 컴포넌트들은 \"use client\" 불필요 — 순수 표시 컴포넌트.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "6c90973c-090d-40ba-9bc4-f73c3401d336"
+        }
+      ],
+      "createdAt": "2026-05-03T08:05:32.889Z",
+      "updatedAt": "2026-05-03T08:13:54.076Z",
+      "relatedFiles": [
+        {
+          "path": "lib/format.ts",
+          "type": "CREATE",
+          "description": "KRW 금액, 날짜, 수량 포맷팅 유틸리티"
+        },
+        {
+          "path": "components/common/LoadingSpinner.tsx",
+          "type": "CREATE",
+          "description": "로딩 스피너 공용 컴포넌트"
+        },
+        {
+          "path": "components/common/EmptyState.tsx",
+          "type": "CREATE",
+          "description": "빈 상태 안내 공용 컴포넌트"
+        },
+        {
+          "path": "components/common/ErrorMessage.tsx",
+          "type": "CREATE",
+          "description": "에러 메시지 표시 공용 컴포넌트"
+        },
+        {
+          "path": "lib/utils.ts",
+          "type": "REFERENCE",
+          "description": "cn() 유틸리티 참고"
+        },
+        {
+          "path": "components/ui/spinner.tsx",
+          "type": "DEPENDENCY",
+          "description": "기존 스피너 컴포넌트 재사용"
+        },
+        {
+          "path": "components/ui/alert.tsx",
+          "type": "DEPENDENCY",
+          "description": "Alert 컴포넌트 (ErrorMessage용)"
+        },
+        {
+          "path": "components/ui/skeleton.tsx",
+          "type": "DEPENDENCY",
+          "description": "Skeleton 컴포넌트"
+        }
+      ],
+      "implementationGuide": "lib/format.ts:\n- const krwFormatter = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }) — 모듈 레벨 캐싱\n- export function formatKRW(amount: number): string → krwFormatter.format(amount)\n- export function formatDate(isoString: string): string → new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(isoString))\n- export function formatQuantity(value: number, unit?: string): string → unit ? value + unit : value.toLocaleString('ko-KR')\n\ncomponents/common/LoadingSpinner.tsx:\n- 서버 컴포넌트, \"use client\" 불필요\n- components/ui/spinner.tsx 또는 components/ui/skeleton.tsx 활용\n- size prop: 'sm' | 'md' | 'lg' 선택적 제공\n\ncomponents/common/EmptyState.tsx:\n- 서버 컴포넌트\n- props: { icon?: React.ReactNode, title: string, description?: string, action?: React.ReactNode }\n- 중앙 정렬 레이아웃, muted-foreground 색상\n\ncomponents/common/ErrorMessage.tsx:\n- 서버 컴포넌트\n- props: { message: string, description?: string }\n- destructive 색상 계열 사용 (text-destructive)\n- Alert 컴포넌트(@/components/ui/alert) 활용 가능",
+      "verificationCriteria": "1. formatKRW(1500000) → '₩1,500,000' 형식 반환\n2. formatDate('2024-01-15') → '2024년 1월 15일' 형식 반환\n3. LoadingSpinner, EmptyState, ErrorMessage 컴포넌트가 TypeScript 오류 없이 렌더링\n4. 공용 컴포넌트에 \"use client\" 선언 없음 확인\n5. npm run build 성공",
+      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
+      "summary": "lib/format.ts: krwFormatter/dateFormatter 모듈 레벨 캐싱, formatKRW·formatDate·formatQuantity 구현. LoadingSpinner: ui/spinner.tsx 래퍼, size sm/md/lg prop. EmptyState: icon/title/description/action 선택 props, 서버 컴포넌트. ErrorMessage: Alert destructive 변형 활용, AlertCircle 아이콘. 4개 파일 모두 \"use client\" 없음. tsc --noEmit 오류 없음.",
+      "completedAt": "2026-05-03T08:13:54.068Z"
+    }
+  ]
+}
