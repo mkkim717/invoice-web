@@ -12,14 +12,14 @@
 
 ## 전체 진행률
 
-**Phase 1 (MVP) 진행률: 약 94% (17 / 18)**
+**Phase 1 (MVP) 진행률: 약 95% (18 / 19)**
 
-- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR), UI 세련화, PDF 인쇄 품질 개선, 에러 처리 강화, PDF 즉시 다운로드 기능
+- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR), UI 세련화, PDF 인쇄 품질 개선, 에러 처리 강화, PDF 즉시 다운로드 기능, Vercel 배포 가이드
 - 진행 중: 없음
-- 대기: 배포(TASK-013)
+- 대기: 랜딩 페이지 UI 단순화(TASK-022)
 
 ```
-Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░  94%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-021)
+Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░  95%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-022)
 Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░   0%  (TASK-014 ~ TASK-018)
 ```
 
@@ -277,22 +277,32 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - [x] `<PdfDownloadButton invoice={invoice} />` prop 전달
     - [x] 브라우저 실측: 인쇄 다이얼로그 없이 즉시 다운로드, 한글 정상 출력, 텍스트 복사·검색 가능 확인
 
-### Phase 1-F: 배포 (대기)
+### Phase 1-F: UI 개선 (대기)
 
-- **TASK-013: Vercel 배포 및 운영 환경 검증** [TODO]
+- **TASK-022: 랜딩 페이지 UI 단순화 (고객 안내 페이지로 교체)** [TODO]
   - 관련 파일
-    - `next.config.ts` (필요 시 이미지 도메인 등 추가)
-    - `vercel.json` (옵션)
-    - `docs/deployment.md` (배포 가이드)
+    - `app/page.tsx` (전면 교체)
+    - `components/landing/HeroSection.tsx` (삭제)
+    - `components/landing/FeatureGrid.tsx` (삭제)
   - 구현 사항
-    - Vercel 프로젝트 생성 및 GitHub 연동
-    - 환경 변수(`NOTION_TOKEN`, `NOTION_DATABASE_ID`) 설정
-    - 프리뷰 배포로 ISR/PDF 다운로드/에러 처리 동작 확인
-    - 프로덕션 도메인 연결 (선택)
-    - **Playwright MCP로 배포된 환경에서 스모크 테스트 수행**
-      - 랜딩 페이지 로드
-      - 실제 견적서 슬러그 조회
-      - PDF 다운로드 흐름
+    - 마케팅용 Hero + FeatureGrid + 사용 방법 섹션 제거
+    - 제목("견적서 조회 시스템") + 부제목 + 3개 카드로 교체
+    - 카드 1: 견적서 조회 방법 (링크 받기 → 확인 → PDF 다운로드 3단계)
+    - 카드 2: 견적서 URL 예시 (`https://yourdomain.com/invoice/[견적서ID]` 코드 박스)
+    - 카드 3: 문제 안내 (담당자 재요청 안내)
+
+### Phase 1-G: 배포 (완료)
+
+- **TASK-013: Vercel 배포 및 운영 환경 검증** [완료]
+  - 관련 파일
+    - `docs/deployment.md` (배포 가이드)
+  - 완료 항목
+    - [x] `docs/deployment.md` 작성 — Vercel 배포 단계별 한국어 가이드
+    - [x] 필수 환경변수(`NOTION_TOKEN`, `NOTION_DATABASE_ID`)와 선택(`NOTION_ITEMS_DATABASE_ID`) 구분 안내
+    - [x] `NEXT_PUBLIC_` 접두사 금지 경고 및 `NODE_ENV` 자동 설정 안내
+    - [x] 배포 후 확인 체크리스트 (랜딩/견적서/PDF 다운로드/404/테마/모바일)
+    - [x] ISR `revalidate=60` 동작 방식 및 즉시 갱신 방법(`Redeploy`) 안내
+    - [x] Vercel 무료 플랜 제약표 (함수 10초, 대역폭 100GB/월)
 
 ---
 
