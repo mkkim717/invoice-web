@@ -12,14 +12,14 @@
 
 ## 전체 진행률
 
-**Phase 1 (MVP) 진행률: 약 79% (11 / 14)**
+**Phase 1 (MVP) 진행률: 약 76% (13 / 17)**
 
-- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR)
-- 진행 중: 없음
-- 대기: PDF 인쇄 품질 개선, 에러 처리 강화, 배포
+- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR), UI 세련화, PDF 인쇄 품질 개선, 에러 처리 강화
+- 진행 중: PDF 즉시 다운로드 셋업 (TASK-019)
+- 대기: PDF 벡터 레이아웃 컴포넌트(TASK-020), 다운로드 버튼 재작성(TASK-021), 배포(TASK-013)
 
 ```
-Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░  79%  (TASK-001 ~ TASK-013, TASK-004.5)
+Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░  76%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-021)
 Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░   0%  (TASK-014 ~ TASK-018)
 ```
 
@@ -154,7 +154,7 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - [x] 사용방법 3단계 섹션 추가
     - [x] 반응형 그리드 (1열 → 3열)
 
-### Phase 1-D: 핵심 기능 구현
+### Phase 1-D: 핵심 기능 구현 (완료)
 
 - **TASK-008: 노션 API 클라이언트 설치 및 환경 변수 설정** [완료]
   - 관련 파일
@@ -193,30 +193,91 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - [x] `export const revalidate = 60` 유지 (ISR 60초 캐시)
     - [x] 노션 API 오류는 catch 없이 `error.tsx`로 자연 전파
 
-- **TASK-011: PDF 다운로드 기능 구현** [TODO]
+- **TASK-011b: UI 세련화 — 견적서·랜딩 시각 완성도 향상** [완료]
   - 관련 파일
-    - `components/invoice/PdfDownloadButton.tsx`
-    - `app/globals.css` (또는 `app/invoice/[slug]/print.css`) — `@media print` 규칙
-  - 구현 사항
-    - 버튼 클릭 시 `window.print()` 호출 (브라우저 인쇄 → PDF 저장)
-    - 인쇄 시 헤더/푸터/네비게이션/다운로드 버튼/테마 토글 숨김
-    - 페이지 마진, 폰트 크기, 색상 보정
-    - 인쇄 미리보기에서 1페이지에 적정 분량이 들어가도록 조정
-    - **Playwright MCP로 인쇄 미디어 에뮬레이션 테스트** (`page.emulateMedia({ media: 'print' })`)
+    - `components/invoice/InvoiceStatusBadge.tsx` — 색상+아이콘 시스템 재설계
+    - `components/invoice/TotalSection.tsx` — 합계 강조 강화
+    - `components/invoice/InvoiceHeader.tsx` — 제목 위계, `due_date` 노출
+    - `components/invoice/SenderInfo.tsx` — `sender_contact` 노출
+    - `components/invoice/ItemsTable.tsx` — 컨테이너화, 반응형, tabular-nums
+    - `components/invoice/MemoSection.tsx` — 본문 색상, 제목 단순화
+    - `components/invoice/PdfDownloadButton.tsx` — Printer 아이콘
+    - `components/landing/HeroSection.tsx` — CTA 버튼 추가
+    - `components/landing/FeatureGrid.tsx` — 호버 효과, 번호 라벨
+    - `app/globals.css` — 인쇄 시 카드 보더 제거
+  - 완료 항목
+    - [x] `InvoiceStatusBadge`: 4상태 bg+text 색상 + lucide 아이콘(FileEdit/Send/CheckCircle2/Clock), 다크모드 대응
+    - [x] `TotalSection`: `text-3xl font-bold tabular-nums` + `border-primary/20 bg-primary/5` 강조 박스
+    - [x] `InvoiceHeader`: 제목 `text-2xl sm:text-3xl`, "견적서" 라벨, `due_date` 표시(미지정 폴백)
+    - [x] `SenderInfo`: `sender_contact` 조건부 표시
+    - [x] `ItemsTable`: rounded border 래퍼, `bg-muted/50` 헤더, 모바일 컬럼 숨김 + 보조 라인, tabular-nums, 빈 배열 폴백, key 개선
+    - [x] `MemoSection`: 본문 `text-foreground`, 제목 "비고"로 단순화
+    - [x] `PdfDownloadButton`: `Printer` 아이콘으로 교체
+    - [x] `HeroSection`: 데모 견적서 보기 + GitHub CTA 버튼 2개
+    - [x] `FeatureGrid`: 호버 시 보더 색상 변화, 번호 라벨(01/02/03)
+    - [x] `globals.css`: 인쇄 시 카드 보더·그림자 제거
 
-- **TASK-012: 에러/예외 처리 강화** [TODO]
+- **TASK-011: PDF 인쇄 품질 개선** [완료]
   - 관련 파일
-    - `app/invoice/[slug]/not-found.tsx`
+    - `app/globals.css` — `@media print` 규칙 보완
+    - `app/invoice/[slug]/page.tsx` — 인쇄 최적화 클래스 추가
+  - 완료 항목
+    - [x] `print-color-adjust: exact` — Badge/배경색 인쇄 시 보존
+    - [x] `break-inside: avoid` — Card 페이지 중간 분할 방지
+    - [x] `font-size: 11pt` — 인쇄 폰트 크기 명시
+    - [x] `a { color: inherit; text-decoration: none }` — 링크 스타일 제거
+    - [x] 컨테이너에 `print:max-w-full print:px-0 print:py-4` — 인쇄 시 전체 폭 사용
+    - [x] `tsc --noEmit` 오류 없음
+
+- **TASK-012: 에러/예외 처리 강화** [완료]
+  - 관련 파일
+    - `app/global-error.tsx` (신규 생성)
     - `app/invoice/[slug]/error.tsx` ("use client")
     - `app/error.tsx` (전역 폴백)
-    - `app/global-error.tsx`
-  - 구현 사항
-    - 사용자 친화적 한국어 에러 메시지
-    - "홈으로 돌아가기" / "다시 시도" CTA 제공
-    - 노션 API 오류는 콘솔/서버 로그에 상세히 남기되 사용자에게는 일반화된 메시지 노출
-    - **Playwright MCP로 에러 시나리오 테스트** (잘못된 slug, API 다운 시뮬레이션)
+  - 완료 항목
+    - [x] `app/global-error.tsx` 신규 생성 — `html`/`body` 포함, 최소 인라인 UI, shadcn 미사용
+    - [x] `useEffect console.error('[Global Error]')` — global-error.tsx 로깅
+    - [x] `useEffect console.error('[Route Error]')` — app/error.tsx 로깅 추가
+    - [x] `useEffect console.error('[Invoice Error]')` — app/invoice/[slug]/error.tsx 로깅 추가
+    - [x] 기존 error.tsx UI 변경 없음
+    - [x] `tsc --noEmit` 오류 없음
 
-### Phase 1-E: 배포 (대기)
+### Phase 1-E: PDF 즉시 다운로드 기능 (대기)
+
+- **TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업** [TODO]
+  - 관련 파일
+    - `package.json` (`@react-pdf/renderer` 의존성)
+    - `public/fonts/NotoSansKR-Regular.ttf` (신규)
+    - `public/fonts/NotoSansKR-Bold.ttf` (신규)
+  - 구현 사항
+    - `npm install @react-pdf/renderer`
+    - Noto Sans KR Regular/Bold ttf 파일을 `public/fonts/`에 배치 (SIL OFL 라이선스)
+    - dev 서버에서 `/fonts/NotoSansKR-*.ttf` 200 OK 확인
+    - `npm run build` 회귀 없음 확인
+
+- **TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)** [TODO]
+  - 관련 파일
+    - `components/invoice/InvoicePdfDocument.tsx` (신규)
+  - 구현 사항
+    - `Font.register`로 NotoSansKR Regular/Bold 임베딩
+    - `Document/Page/View/Text + StyleSheet`로 견적서 PDF 레이아웃 구현
+    - 헤더 → 발신자/고객 → 항목 테이블 → 합계 → 메모 배치
+    - `formatKRW`, `formatDate` 재사용 (`lib/format.ts`)
+    - 흰 배경 고정, TypeScript any 없음
+
+- **TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증** [TODO]
+  - 관련 파일
+    - `components/invoice/PdfDownloadButton.tsx` (재작성)
+    - `app/invoice/[slug]/page.tsx` (prop 전달 추가)
+  - 구현 사항
+    - `window.print()` 제거, 동적 import로 `@react-pdf/renderer` + `InvoicePdfDocument` 지연 로드
+    - `pdf(...).toBlob()` → `URL.createObjectURL` → `<a download>` 트리거 → `URL.revokeObjectURL`
+    - `isGenerating` 상태로 버튼 비활성화 + "생성 중..." 라벨
+    - 파일명: `invoice-${invoice.slug}.pdf` (ASCII 안전)
+    - `<PdfDownloadButton invoice={invoice} />` prop 전달
+    - 다운로드된 PDF에서 텍스트 복사·Ctrl+F 검색 가능 확인
+
+### Phase 1-F: 배포 (대기)
 
 - **TASK-013: Vercel 배포 및 운영 환경 검증** [TODO]
   - 관련 파일

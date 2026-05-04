@@ -452,72 +452,316 @@
       "completedAt": "2026-05-03T12:13:08.403Z"
     },
     {
+      "id": "2bb596f0-5922-431a-80f9-e26403b30417",
+      "name": "TASK-011b: UI 세련화 — 견적서·랜딩 시각 완성도 향상",
+      "description": "견적서 도메인 컴포넌트와 랜딩 페이지의 시각적 완성도를 높인다. 핵심 5개 항목(StatusBadge 아이콘+색상 / TotalSection 강조 / InvoiceHeader 위계+누락 데이터 / ItemsTable 컨테이너+반응형 / Hero CTA)을 구현하고, 보너스 디테일(tabular-nums, Printer 아이콘, 인쇄 CSS, FeatureGrid 호버 등)을 함께 처리한다.",
+      "notes": "서버 컴포넌트인 InvoiceHeader에 due_date/sender_contact를 추가할 때 SenderInfo와 분리를 유지. ItemsTable key={index} → key={`${item.name}-${index}`}로 교체. InvoiceHeader의 타입은 현재 Pick<Invoice, 'title'|'issue_date'|'status'>인데 due_date 추가 시 타입 확장 필요. 랜딩 CTA 데모 링크는 /invoice/web-design-2024 (lib/dummy-invoices.ts의 실제 슬러그). PdfDownloadButton은 'use client' 유지.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
+        }
+      ],
+      "createdAt": "2026-05-03T12:27:37.805Z",
+      "updatedAt": "2026-05-03T12:29:45.830Z",
+      "relatedFiles": [
+        {
+          "path": "components/invoice/InvoiceStatusBadge.tsx",
+          "type": "TO_MODIFY",
+          "description": "4상태 색상+lucide 아이콘 매핑 재설계"
+        },
+        {
+          "path": "components/invoice/TotalSection.tsx",
+          "type": "TO_MODIFY",
+          "description": "text-3xl + 강조 박스"
+        },
+        {
+          "path": "components/invoice/InvoiceHeader.tsx",
+          "type": "TO_MODIFY",
+          "description": "제목 위계 강화, due_date 노출 추가"
+        },
+        {
+          "path": "components/invoice/SenderInfo.tsx",
+          "type": "TO_MODIFY",
+          "description": "sender_contact 노출 추가"
+        },
+        {
+          "path": "components/invoice/ItemsTable.tsx",
+          "type": "TO_MODIFY",
+          "description": "컨테이너화, 반응형, tabular-nums, 빈 배열 폴백, key 교체"
+        },
+        {
+          "path": "components/invoice/MemoSection.tsx",
+          "type": "TO_MODIFY",
+          "description": "본문 색상 text-foreground, 제목 '비고'로 단순화"
+        },
+        {
+          "path": "components/invoice/PdfDownloadButton.tsx",
+          "type": "TO_MODIFY",
+          "description": "아이콘 Download → Printer, 라벨 보완"
+        },
+        {
+          "path": "components/landing/HeroSection.tsx",
+          "type": "TO_MODIFY",
+          "description": "CTA 버튼 2개(데모 견적서 보기 / GitHub) 추가"
+        },
+        {
+          "path": "components/landing/FeatureGrid.tsx",
+          "type": "TO_MODIFY",
+          "description": "hover:border-primary/50 transition-colors, Badge→번호 교체"
+        },
+        {
+          "path": "app/globals.css",
+          "type": "TO_MODIFY",
+          "description": "@media print 카드 보더·그림자 제거 추가"
+        },
+        {
+          "path": "lib/types.ts",
+          "type": "REFERENCE",
+          "description": "Invoice 타입 확인 (due_date, sender_contact 필드)"
+        },
+        {
+          "path": "lib/dummy-invoices.ts",
+          "type": "REFERENCE",
+          "description": "CTA 데모 슬러그 확인 (web-design-2024)"
+        }
+      ],
+      "implementationGuide": "## 1. InvoiceStatusBadge.tsx\n```tsx\nimport { Send, CheckCircle2, Clock, FileEdit } from 'lucide-react'\nconst STATUS_CONFIG = {\n  draft:    { label: '초안',   className: 'bg-muted text-muted-foreground', Icon: FileEdit },\n  sent:     { label: '발송됨', className: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300', Icon: Send },\n  accepted: { label: '수락됨', className: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300', Icon: CheckCircle2 },\n  expired:  { label: '만료됨', className: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300', Icon: Clock },\n}\n// Badge 대신 직접 span으로: <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium', config.className)}><Icon className='size-3' />{config.label}</span>\n```\n\n## 2. TotalSection.tsx\n```tsx\n<div className='rounded-lg border border-primary/20 bg-primary/5 p-6'>\n  <div className='flex items-baseline justify-between'>\n    <span className='text-sm font-medium text-muted-foreground'>합계 금액</span>\n    <span className='text-3xl font-bold tabular-nums' aria-label={`합계 금액 ${formatKRW(total_amount)}`}>\n      {formatKRW(total_amount)}\n    </span>\n  </div>\n</div>\n```\n\n## 3. InvoiceHeader.tsx\n- 타입: Pick<Invoice, 'title'|'issue_date'|'due_date'|'status'>\n- 제목 영역: <p className='text-xs uppercase tracking-widest text-muted-foreground'>견적서</p> + <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>{title}</h1>\n- dl에 발행일 + due_date 조건부(null이면 '기간 미지정' 또는 row 숨김) 두 컬럼으로\n- Separator 제거\n\n## 4. SenderInfo.tsx\n- 타입: Pick<Invoice, 'sender_name'|'sender_contact'>\n- sender_contact가 null이 아닐 때만 연락처 행 추가\n\n## 5. ItemsTable.tsx\n- 래퍼: <div className='rounded-lg border overflow-hidden'>\n- TableHeader: <TableHeader className='bg-muted/50'>\n- 모바일: 수량/단가 셀에 className='hidden sm:table-cell', 품목명 셀 아래 보조 라인(sm:hidden)으로 수량×단가 표기\n- 금액 셀: className='text-right tabular-nums'\n- key: `${item.name}-${index}`\n- 빈 배열: items.length === 0 → <p className='py-8 text-center text-sm text-muted-foreground'>등록된 품목이 없습니다.</p>\n\n## 6. MemoSection.tsx\n- CardTitle: '비고'\n- 본문: text-sm (text-muted-foreground 제거)\n\n## 7. PdfDownloadButton.tsx\n- import { Printer } from 'lucide-react'\n- <Button ...><Printer className='mr-2 size-4' />PDF로 저장</Button>\n\n## 8. HeroSection.tsx\n- import Link from 'next/link' + Button\n- CTA 영역 추가:\n<div className='flex flex-col sm:flex-row gap-3 justify-center'>\n  <Button asChild size='lg'><Link href='/invoice/web-design-2024'>데모 견적서 보기</Link></Button>\n  <Button asChild size='lg' variant='outline'><Link href='https://github.com/mkkim717/invoice-web' target='_blank'>GitHub</Link></Button>\n</div>\n\n## 9. FeatureGrid.tsx\n- 각 Card에 transition-colors hover:border-primary/50 cursor-default 추가\n- 우상단 Badge를 단계 번호 '01'/'02'/'03'으로 교체 (text-xs font-mono text-muted-foreground)\n\n## 10. globals.css @media print 추가\n```css\n@media print {\n  [data-slot='card'] { border: none !important; box-shadow: none !important; }\n}\n```",
+      "verificationCriteria": "1. InvoiceStatusBadge: 4개 상태 각각 다른 배경색+텍스트색+아이콘으로 렌더링, 다크모드에서도 식별 가능\n2. TotalSection: 금액이 text-3xl로 강조 렌더링, 박스 배경 확인\n3. InvoiceHeader: 제목 크기 이전보다 커짐, due_date 표시(더미 데이터 branding-2024에는 null이므로 해당 케이스도 확인)\n4. ItemsTable: rounded border 래퍼 존재, 320px 폭에서 수량/단가 컬럼 숨김, 금액 tabular-nums 정렬\n5. HeroSection: '데모 견적서 보기' 버튼 클릭 시 /invoice/web-design-2024로 이동\n6. PdfDownloadButton: Printer 아이콘 렌더링\n7. FeatureGrid: 카드 hover 시 보더 색상 변화\n8. 인쇄 미리보기(Ctrl+P): 카드 보더/그림자 사라짐\n9. tsc --noEmit 오류 없음\n10. npm run build 성공",
+      "analysisResult": "Phase 1-D 진행 중. TASK-010 완료(실제 노션 데이터 연결)로 견적서 페이지 핵심 기능은 동작하나, 시각적 완성도가 \"정보 전달은 되지만 정성스럽지 않은\" 단계에 머물러 있음. TASK-011(PDF 인쇄 품질)과 일부 CSS가 겹치므로 UI 세련화를 먼저 처리하는 것이 효율적. any 금지·서버 컴포넌트 기본·한국어 UI·tabular-nums 금액 정렬 원칙 준수.",
+      "summary": "10개 파일 수정 완료. InvoiceStatusBadge: 4상태 bg+text 색상 + lucide 아이콘(FileEdit/Send/CheckCircle2/Clock), 다크모드 대응. TotalSection: text-3xl font-bold tabular-nums + border-primary/20 bg-primary/5 강조 박스. InvoiceHeader: text-2xl sm:text-3xl 제목, '견적서' 라벨, due_date 노출(미지정 폴백). SenderInfo: sender_contact 조건부 표시. ItemsTable: rounded border 래퍼, bg-muted/50 헤더, 모바일 컬럼 숨김 + 보조 라인, tabular-nums, 빈 배열 폴백, key 개선. MemoSection: text-foreground, 제목 '비고'. PdfDownloadButton: Printer 아이콘. HeroSection: 데모/GitHub CTA 2버튼. FeatureGrid: 호버 border, 번호 라벨. globals.css: print 카드 보더 제거. tsc --noEmit 오류 없음.",
+      "completedAt": "2026-05-03T12:29:45.827Z"
+    },
+    {
       "id": "f58f498b-9e07-4457-b510-0e4a0decd7c7",
       "name": "TASK-011: PDF 인쇄 품질 개선",
-      "description": "기존 window.print() 기반 PDF 기능의 인쇄 품질을 개선한다. PdfDownloadButton은 이미 구현됨 — CSS 보완에 집중.\n\n수정 파일:\n- app/globals.css: @media print 규칙 보완\n- app/invoice/[slug]/page.tsx: 인쇄 최적화 클래스 추가",
-      "notes": "PdfDownloadButton(window.print())과 .no-print 클래스는 이미 완성됨 — 수정 불필요. globals.css의 기존 @media print 블록을 확장하는 방식으로 추가.",
-      "status": "pending",
+      "description": "기존 window.print() 기반 PDF 기능의 인쇄 품질을 개선한다. PdfDownloadButton은 이미 완성 — CSS 보완과 page.tsx 클래스 추가에 집중.\n\n수정 파일:\n- app/globals.css: @media print 규칙 보완\n- app/invoice/[slug]/page.tsx: 인쇄 최적화 클래스 추가",
+      "notes": "- [data-slot=\"card\"] 셀렉터는 이미 globals.css에 존재 — 별도 블록 생성 말고 기존 블록에 break-inside: avoid만 추가\n- Tailwind CSS v4: print: 변형은 @media print 자동 생성, tailwind.config.js 불필요\n- TypeScript 변경 없음 — tsc 오류 위험 없음\n- body background:white 규칙은 이미 존재 — font-size만 추가",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
         }
       ],
       "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T09:02:47.093Z",
+      "updatedAt": "2026-05-03T13:46:40.783Z",
       "relatedFiles": [
         {
           "path": "app/globals.css",
           "type": "TO_MODIFY",
-          "description": "@media print 규칙 보완"
+          "description": "@media print 블록 확장 — color-adjust, break-inside, font-size, a 스타일",
+          "lineStart": 132,
+          "lineEnd": 155
         },
         {
           "path": "app/invoice/[slug]/page.tsx",
           "type": "TO_MODIFY",
-          "description": "인쇄 최적화 클래스 추가"
+          "description": "최외곽 div에 print:max-w-full print:px-0 print:py-4 추가",
+          "lineStart": 43,
+          "lineEnd": 45
         },
         {
           "path": "components/invoice/PdfDownloadButton.tsx",
           "type": "REFERENCE",
-          "description": "이미 완성 — 수정 불필요"
+          "description": "이미 완성 — 수정 불필요 (window.print(), no-print 클래스)"
         }
       ],
-      "implementationGuide": "app/globals.css @media print 보완:\n- * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important } — 배경색/색상 보존\n- .print-break-avoid { break-inside: avoid } — 카드 중간 페이지 분할 방지\n- a { text-decoration: none; color: inherit } — 링크 스타일 제거\n- 폰트 크기: body에 font-size: 12pt\n\napp/invoice/[slug]/page.tsx:\n- 각 섹션 Card에 print:break-inside-avoid 또는 별도 className 추가 고려\n- 컨테이너 max-w-3xl → print:max-w-full",
-      "verificationCriteria": "1. 인쇄 미리보기에서 배경색/Badge 색상이 유지됨\n2. Card 컴포넌트가 페이지 중간에서 잘리지 않음\n3. 헤더/푸터/버튼 숨김 유지\n4. 1~2페이지 내 견적서 내용 수용\n5. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-D 핵심 기능 구현: 노션 API 연동 전체 파이프라인을 구축한다. lib/notion-schema.ts(NotionInvoicePropertiesSchema), lib/types.ts(Invoice/InvoiceItemSchema)를 재사용하며 any 금지·서버 전용 모듈·한국어 UI 원칙을 따른다. 실행 순서: TASK-008 → TASK-009 → TASK-010 → TASK-011+012(병렬)."
+      "implementationGuide": "1. app/globals.css @media print 블록 수정:\n   - 기존 [data-slot=\"card\"] 블록에 break-inside: avoid 추가 (페이지 중간 카드 분할 방지)\n   - * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important } 추가 (Badge/배경색 보존)\n   - body에 font-size: 11pt 추가\n   - a { color: inherit !important; text-decoration: none !important } 추가 (링크 스타일 제거)\n\n2. app/invoice/[slug]/page.tsx 최외곽 div className에 추가:\n   - print:max-w-full (인쇄 시 전체 폭 사용)\n   - print:px-0 (인쇄 시 좌우 패딩 제거)\n   - print:py-4 (인쇄 시 상하 패딩 최소화)",
+      "verificationCriteria": "1. 브라우저 인쇄 미리보기(Ctrl+P)에서 InvoiceStatusBadge 배경색 유지\n2. Card 컴포넌트가 페이지 중간에서 잘리지 않음\n3. header/footer/PDF 버튼 인쇄 시 숨김 유지\n4. 견적서 컨테이너가 인쇄 시 전체 폭 사용\n5. tsc --noEmit 오류 없음",
+      "analysisResult": "window.print() 기반 PDF 기능의 인쇄 품질을 CSS만으로 개선한다. 외부 라이브러리 추가 없이 globals.css @media print 블록 확장과 page.tsx Tailwind print: 변형 클래스 추가로 완성.",
+      "summary": "globals.css @media print 블록에 print-color-adjust:exact(배경색 보존), break-inside:avoid(카드 분할 방지), font-size:11pt, a 링크 스타일 제거 추가 완료. page.tsx 컨테이너에 print:max-w-full print:px-0 print:py-4 추가 완료. 기존 header/footer/no-print 숨김 규칙 유지. tsc --noEmit 오류 없음. TypeScript 변경 없이 CSS + className만 수정.",
+      "completedAt": "2026-05-03T13:46:40.776Z"
     },
     {
       "id": "82ced882-b7d8-456d-a7ec-3952dfcf65be",
       "name": "TASK-012: 에러/예외 처리 강화",
-      "description": "app/global-error.tsx를 신규 생성하고 기존 에러 페이지들에 노션 API 오류 로깅을 추가한다.\n\n수정/생성 파일:\n- app/global-error.tsx: 신규 (최상위 에러 경계, html+body 포함)\n- app/invoice/[slug]/error.tsx: console.error 추가\n- app/error.tsx: console.error 추가",
-      "notes": "global-error.tsx는 layout.tsx가 렌더링 실패할 때의 최후 폴백. html/body 태그를 직접 포함해야 하며 ThemeProvider 없이 작동해야 함. 기존 error.tsx들은 UI가 이미 충분 — 로깅만 추가.",
-      "status": "pending",
+      "description": "app/global-error.tsx를 신규 생성하고 기존 에러 페이지 2개에 useEffect console.error 로깅을 추가한다.\n\n생성/수정 파일:\n- app/global-error.tsx: 신규 (최상위 에러 경계, html+body 포함, 최소 UI)\n- app/error.tsx: useEffect + console.error('[Route Error]', error) 추가\n- app/invoice/[slug]/error.tsx: useEffect + console.error('[Invoice Error]', error) 추가",
+      "notes": "- global-error.tsx의 body 인라인 스타일은 레이아웃 CSS 미적용 상황 대비 내성 확보용\n- app/error.tsx console prefix는 '[Route Error]'로 — '[Global Error]'는 global-error.tsx 전용\n- 기존 error.tsx 2개의 UI(아이콘, 메시지, 버튼)는 절대 변경 금지\n- TypeScript: any 없음, ErrorProps 패턴 기존과 동일하게 유지",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
         }
       ],
       "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T09:02:47.093Z",
+      "updatedAt": "2026-05-03T14:11:33.798Z",
       "relatedFiles": [
         {
           "path": "app/global-error.tsx",
           "type": "CREATE",
-          "description": "최상위 에러 경계 (html+body 포함)"
-        },
-        {
-          "path": "app/invoice/[slug]/error.tsx",
-          "type": "TO_MODIFY",
-          "description": "console.error 로깅 추가"
+          "description": "최상위 에러 경계 — html/body 포함, ThemeProvider 없는 최소 UI"
         },
         {
           "path": "app/error.tsx",
           "type": "TO_MODIFY",
-          "description": "console.error 로깅 추가"
+          "description": "useEffect + console.error('[Route Error]') 추가",
+          "lineStart": 1,
+          "lineEnd": 42
+        },
+        {
+          "path": "app/invoice/[slug]/error.tsx",
+          "type": "TO_MODIFY",
+          "description": "useEffect + console.error('[Invoice Error]') 추가",
+          "lineStart": 1,
+          "lineEnd": 41
         }
       ],
-      "implementationGuide": "app/global-error.tsx (신규):\n- 'use client'\n- props: { error: Error & { digest?: string }, reset: () => void }\n- html lang='ko' + body 직접 렌더링 (ThemeProvider 없음 — 최상위 폴백)\n- 최소 UI: 흰 배경, 에러 아이콘, 한국어 메시지, 다시 시도 버튼\n- useEffect(() => console.error(error), [error])\n\napp/invoice/[slug]/error.tsx 보완:\n- useEffect(() => { console.error('[Invoice Error]', error) }, [error]) 추가\n\napp/error.tsx 보완:\n- useEffect(() => { console.error('[Global Error]', error) }, [error]) 추가",
-      "verificationCriteria": "1. app/global-error.tsx 존재, html/body 태그 포함\n2. 'use client' 선언 확인\n3. error.tsx 두 곳에 useEffect console.error 추가됨\n4. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-D 핵심 기능 구현: 노션 API 연동 전체 파이프라인을 구축한다. lib/notion-schema.ts(NotionInvoicePropertiesSchema), lib/types.ts(Invoice/InvoiceItemSchema)를 재사용하며 any 금지·서버 전용 모듈·한국어 UI 원칙을 따른다. 실행 순서: TASK-008 → TASK-009 → TASK-010 → TASK-011+012(병렬)."
+      "implementationGuide": "1. app/global-error.tsx 신규 생성:\n   - 'use client'\n   - import { useEffect } from 'react'\n   - props: { error: Error & { digest?: string }; reset: () => void }\n   - useEffect(() => { console.error('[Global Error]', error) }, [error])\n   - return <html lang='ko'><body style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'white', fontFamily:'system-ui,sans-serif', margin:0 }}>\n   - 내부: 경고 이모지(⚠️) + h1 '오류가 발생했습니다' + p 안내 메시지 + error.digest 조건부 + native button(다시 시도) + native a href='/'(홈으로 돌아가기)\n   - shadcn 컴포넌트 사용 금지 (ThemeProvider 없는 환경)\n\n2. app/error.tsx 수정 (UI 변경 없음):\n   - import 줄에 useEffect 추가: import { useEffect } from 'react'\n   - 컴포넌트 바디 최상단에 추가: useEffect(() => { console.error('[Route Error]', error) }, [error])\n\n3. app/invoice/[slug]/error.tsx 수정 (UI 변경 없음):\n   - import 줄에 useEffect 추가: import { useEffect } from 'react'\n   - 컴포넌트 바디 최상단에 추가: useEffect(() => { console.error('[Invoice Error]', error) }, [error])",
+      "verificationCriteria": "1. app/global-error.tsx 존재, html lang='ko' + body 태그 포함\n2. global-error.tsx에 'use client' 선언\n3. global-error.tsx에 useEffect console.error('[Global Error]') 포함\n4. app/error.tsx에 useEffect console.error('[Route Error]') 추가됨\n5. app/invoice/[slug]/error.tsx에 useEffect console.error('[Invoice Error]') 추가됨\n6. 기존 error.tsx 2개의 UI 변경 없음\n7. tsc --noEmit 오류 없음",
+      "analysisResult": "에러 경계 3계층 완성: 루트 레이아웃 크래시 폴백(global-error.tsx 신규) + 라우트 에러 로깅(app/error.tsx) + 견적서 에러 로깅(app/invoice/[slug]/error.tsx). UI 변경 없이 로깅만 추가. 총 3개 파일.",
+      "summary": "app/global-error.tsx 신규 생성 완료 — \"use client\", html lang=\"ko\"+body 포함, useEffect console.error(\"[Global Error]\"), 인라인 스타일 최소 UI(⚠️ 아이콘, 한국어 메시지, 다시시도/홈 버튼), shadcn 미사용. app/error.tsx에 useEffect console.error(\"[Route Error]\") 추가, app/invoice/[slug]/error.tsx에 useEffect console.error(\"[Invoice Error]\") 추가 — 기존 UI 변경 없음. tsc --noEmit 오류 없음.",
+      "completedAt": "2026-05-03T14:11:33.789Z"
+    },
+    {
+      "id": "46f2bb6b-635e-4eef-aad9-5be8e35860f6",
+      "name": "TASK-013: Vercel 배포 및 운영 환경 검증",
+      "description": "docs/deployment.md를 작성하고, 사용자가 Vercel 대시보드에서 배포를 완료할 수 있도록 단계별 가이드를 제공한다.\n\n생성 파일:\n- docs/deployment.md: Vercel 배포 단계별 가이드 (한국어)\n\n코드 변경 없음 — 빌드 성공 및 GitHub 연결이 이미 확인됨.",
+      "notes": "- NOTION_ITEMS_DATABASE_ID는 lib/env.ts에서 검증하지 않으므로 Vercel 필수 아님 — 선택으로 명시\n- vercel.json 생성 불필요 — 기본 설정으로 Next.js 올바르게 배포됨\n- next.config.ts 수정 불필요 — 현재 빈 설정으로 빌드 성공 확인\n- 배포 자체(버튼 클릭, 도메인 연결)는 사용자가 직접 수행",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "82ced882-b7d8-456d-a7ec-3952dfcf65be"
+        }
+      ],
+      "createdAt": "2026-05-04T04:36:16.788Z",
+      "updatedAt": "2026-05-04T04:36:16.788Z",
+      "relatedFiles": [
+        {
+          "path": "docs/deployment.md",
+          "type": "CREATE",
+          "description": "Vercel 배포 단계별 가이드 (한국어)"
+        },
+        {
+          "path": ".env.example",
+          "type": "REFERENCE",
+          "description": "환경 변수 키 목록 참고"
+        },
+        {
+          "path": "docs/notion-db-setup.md",
+          "type": "REFERENCE",
+          "description": "노션 DB 설정 가이드 (배포 가이드에서 참조)"
+        },
+        {
+          "path": "next.config.ts",
+          "type": "REFERENCE",
+          "description": "수정 불필요 확인"
+        }
+      ],
+      "implementationGuide": "docs/deployment.md 작성 내용:\n\n1. 사전 요구사항: GitHub 계정, Vercel 계정(무료), 노션 Integration Token+DB ID\n\n2. 1단계 코드 푸시: git add/commit/push 명령어, 커밋 메시지 예시\n\n3. 2단계 Vercel 프로젝트 생성: vercel.com/new → GitHub 저장소(mkkim717/invoice-web) 선택 → Next.js 자동 감지 확인 → Deploy 클릭\n\n4. 3단계 환경 변수 설정 (Settings → Environment Variables):\n   - NOTION_TOKEN: 필수, Production+Preview+Development 모두 적용\n   - NOTION_DATABASE_ID: 필수, 동일 적용\n   - NOTION_ITEMS_DATABASE_ID: 선택(시드 스크립트 전용)\n\n5. 4단계 배포 확인 체크리스트:\n   - 랜딩 페이지(/) 정상 로드\n   - /invoice/web-design-2024 견적서 렌더링 확인\n   - PDF 저장 버튼(Ctrl+P 다이얼로그) 동작\n   - 존재하지 않는 slug → not-found 페이지\n   - 잘못된 접근 → error 페이지\n\n6. 운영 참고:\n   - ISR revalidate=60: 노션 데이터 변경 후 최대 60초 뒤 반영\n   - 강제 재검증: Vercel 대시보드 Deployments → Redeploy\n   - 무료 플랜 한도: 월 100GB 대역폭, Serverless Function 실행 시간 10초\n   - 환경 변수 변경 후 재배포 필요",
+      "verificationCriteria": "1. docs/deployment.md 파일 존재\n2. 환경 변수 3개(NOTION_TOKEN 필수, NOTION_DATABASE_ID 필수, NOTION_ITEMS_DATABASE_ID 선택) 설명 포함\n3. Vercel 프로젝트 생성 단계 포함\n4. 배포 확인 체크리스트 5개 항목 포함\n5. ISR revalidate=60 동작 설명 포함\n6. 한국어로 작성됨",
+      "analysisResult": "TASK-013은 코드 변경이 없는 배포 가이드 문서화 태스크. 빌드 성공·GitHub 연결 확인 완료. docs/deployment.md 작성이 유일한 작업물."
+    },
+    {
+      "id": "ad9d7408-3ab7-4c6b-b959-31b9953d6a9b",
+      "name": "TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업",
+      "description": "@react-pdf/renderer 클라이언트 사이드 PDF 생성 라이브러리를 설치하고, 한글 출력을 위해 Noto Sans KR Regular/Bold ttf 파일을 public/fonts/에 정적 자산으로 배치한다. 이후 InvoicePdfDocument와 PdfDownloadButton이 사용할 기반을 마련한다.\n\n생성/수정 파일:\n- package.json: @react-pdf/renderer 의존성 추가\n- public/fonts/NotoSansKR-Regular.ttf (신규): SIL OFL 라이선스 한글 폰트 Regular 400\n- public/fonts/NotoSansKR-Bold.ttf (신규): SIL OFL 라이선스 한글 폰트 Bold 700\n\n수락 기준:\n- npm run build 통과(의존성 추가만으로 회귀 없음)\n- 두 ttf 파일이 public/fonts/ 경로에 존재하고 dev 서버에서 /fonts/NotoSansKR-Regular.ttf URL로 200 응답",
+      "notes": "ttf 파일은 git에 커밋(폰트 파일 자체는 SIL OFL이라 재배포 자유). 다른 weight나 woff2는 추가하지 않음(견적서에는 Regular/Bold 두 가지면 충분).",
+      "status": "in_progress",
+      "dependencies": [],
+      "createdAt": "2026-05-04T14:44:08.499Z",
+      "updatedAt": "2026-05-04T14:47:36.365Z",
+      "relatedFiles": [
+        {
+          "path": "package.json",
+          "type": "TO_MODIFY",
+          "description": "@react-pdf/renderer 의존성 추가"
+        },
+        {
+          "path": "public/fonts/NotoSansKR-Regular.ttf",
+          "type": "CREATE",
+          "description": "한글 폰트 Regular 400"
+        },
+        {
+          "path": "public/fonts/NotoSansKR-Bold.ttf",
+          "type": "CREATE",
+          "description": "한글 폰트 Bold 700"
+        }
+      ],
+      "implementationGuide": "1) npm install @react-pdf/renderer 실행\\n2) Google Fonts 또는 공식 소스에서 Noto Sans KR Regular(weight 400) / Bold(weight 700) ttf 파일을 받아 public/fonts/ 디렉토리에 NotoSansKR-Regular.ttf, NotoSansKR-Bold.ttf 정확한 파일명으로 배치\\n3) npm run dev로 /fonts/NotoSansKR-Regular.ttf, /fonts/NotoSansKR-Bold.ttf 둘 다 브라우저에서 200 응답 확인\\n4) npm run build 회귀 없음 확인",
+      "verificationCriteria": "1) /fonts/NotoSansKR-Regular.ttf 와 /fonts/NotoSansKR-Bold.ttf 가 dev 서버에서 200 OK로 서빙된다\\n2) package.json dependencies에 @react-pdf/renderer 항목이 추가되었다\\n3) npm run build 가 오류 없이 통과한다",
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
+    },
+    {
+      "id": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089",
+      "name": "TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)",
+      "description": "@react-pdf/renderer의 Document/Page/View/Text + StyleSheet API로 견적서 PDF 레이아웃을 구현한다. 화면용 8개 컴포넌트와는 출력 매체가 달라 재사용 불가하므로 신규 작성하되, 동일한 정보 배치(헤더 → 발신자/고객 → 항목 테이블 → 합계 → 메모)를 따른다. 한글 폰트는 모듈 최상단 Font.register로 1회 등록한다.\n\n생성 파일:\n- components/invoice/InvoicePdfDocument.tsx (신규): props { invoice: Invoice }\n\n사용/재사용:\n- lib/types.ts 의 Invoice 타입 import\n- lib/format.ts 의 formatKRW, formatDate 재사용\n- InvoiceStatusBadge의 한글 라벨 매핑(draft→임시 / sent→발송됨 / accepted→수락됨 / expired→만료)은 컴포넌트 내부 인라인 매퍼로 작성(재사용 가치보다 스코프 부풀림 회피)\n\n수락 기준:\n- TypeScript any 없음, strict 모드 통과\n- 다크모드와 무관하게 흰 배경/검은 글씨 고정 (StyleSheet에서 backgroundColor: '#ffffff', color: '#111827')\n- 항목이 많아 1페이지를 넘으면 자동 페이지 분할되며 테이블 헤더는 fixed 속성으로 매 페이지 상단에 반복",
+      "notes": "InvoicePdfDocument는 page.tsx에서 직접 import 금지 — 반드시 PdfDownloadButton 내부에서만 dynamic import해야 react-pdf가 서버 번들에 새지 않는다. 'use client' 지시문은 불필요(컴포넌트 자체는 순수 함수, 클라이언트 진입점은 PdfDownloadButton).",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "ad9d7408-3ab7-4c6b-b959-31b9953d6a9b"
+        }
+      ],
+      "createdAt": "2026-05-04T14:44:08.499Z",
+      "updatedAt": "2026-05-04T14:44:08.499Z",
+      "relatedFiles": [
+        {
+          "path": "components/invoice/InvoicePdfDocument.tsx",
+          "type": "CREATE",
+          "description": "react-pdf 견적서 PDF 컴포넌트"
+        },
+        {
+          "path": "lib/types.ts",
+          "type": "DEPENDENCY",
+          "description": "Invoice / InvoiceItem / InvoiceStatus 타입"
+        },
+        {
+          "path": "lib/format.ts",
+          "type": "DEPENDENCY",
+          "description": "formatKRW / formatDate 재사용"
+        },
+        {
+          "path": "components/invoice/InvoiceStatusBadge.tsx",
+          "type": "REFERENCE",
+          "description": "한글 라벨 매핑 참고"
+        }
+      ],
+      "implementationGuide": "1) 모듈 최상단에서 Font.register({ family: 'NotoSansKR', fonts: [{ src: '/fonts/NotoSansKR-Regular.ttf', fontWeight: 'normal' }, { src: '/fonts/NotoSansKR-Bold.ttf', fontWeight: 'bold' }] }) 호출\\n2) StyleSheet.create로 page(padding 40, fontFamily 'NotoSansKR', fontSize 10, color '#111827', backgroundColor '#ffffff'), headerTitle(fontSize 20 bold), metaRow/metaLabel/metaValue, sectionTitle, tableHeader/tableRow/cellName/cellQty/cellPrice/cellAmount, totalBox, memo 스타일 정의\\n3) <Document title={invoice.title} author={invoice.sender_name}> <Page size='A4' style={styles.page}> 최상위 골격 작성\\n4) Header 영역: title, '견적서' 라벨, issue_date(formatDate), due_date(있으면 formatDate, 없으면 '미지정'), status를 한글 라벨로 변환해 표시\\n5) Sender/Client 2열 그리드: sender_name, sender_contact(있으면), client_name\\n6) ItemsTable: 헤더 View에 fixed prop, 행은 invoice.items.map으로 name/quantity/unit_price(formatKRW)/amount(formatKRW)\\n7) Total: 우측 정렬 박스, total_amount를 formatKRW로 표시\\n8) Memo: invoice.memo가 truthy일 때만 렌더, 제목 '비고' + 본문\\n9) 색상은 hex 팔레트(예: #111827 텍스트, #6b7280 보조 텍스트, #e5e7eb 보더)만 사용. oklch 토큰 사용 금지(react-pdf 미지원)",
+      "verificationCriteria": "1) InvoicePdfDocument를 단독으로 react-pdf의 pdf() 함수에 넘겨 Blob 생성이 성공한다\\n2) 생성된 PDF에서 한글 텍스트가 정상 글자로 보이고 텍스트 드래그·복사가 가능하다(raster 아님)\\n3) invoice.items 길이가 50건 이상인 가상 데이터로도 페이지 분할되고 테이블 헤더가 매 페이지 상단에 반복된다\\n4) any 타입 없이 TypeScript 컴파일 통과",
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
+    },
+    {
+      "id": "1f207628-05a2-455b-a0e1-3465dc676409",
+      "name": "TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증",
+      "description": "기존 window.print() 호출 방식을 제거하고, 클릭 시 동적 import로 @react-pdf/renderer와 InvoicePdfDocument를 지연 로드해 Blob을 생성하고 임시 <a download> 클릭으로 즉시 다운로드를 트리거한다. app/invoice/[slug]/page.tsx에서 PdfDownloadButton에 invoice 객체를 prop으로 전달한다. 기존 @media print 규칙은 Ctrl+P 사용자를 위해 그대로 보존한다.\n\n수정 파일:\n- components/invoice/PdfDownloadButton.tsx: 전면 재작성, props { invoice: Invoice }, 클라이언트 컴포넌트 유지\n- app/invoice/[slug]/page.tsx: <PdfDownloadButton invoice={invoice} /> 로 prop 전달\n\n수락 기준:\n- 인쇄 다이얼로그 없이 invoice-{slug}.pdf 가 즉시 다운로드된다\n- isGenerating 상태로 버튼이 잠시 비활성화되며 라벨이 '생성 중...'으로 변경된다\n- 다운로드된 PDF 텍스트가 복사·Ctrl+F 검색 가능하다\n- 다크 모드에서도 PDF는 흰 배경으로 일관된다\n- @media print 규칙은 변경 없음, Ctrl+P 직접 인쇄도 여전히 동작한다\n- npm run build 회귀 없음",
+      "notes": "globals.css의 @media print 블록은 손대지 않는다. invoice 객체는 plain object이므로 RSC → 클라이언트 컴포넌트로 그대로 직렬화 전달 가능.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089"
+        }
+      ],
+      "createdAt": "2026-05-04T14:44:08.499Z",
+      "updatedAt": "2026-05-04T14:44:08.499Z",
+      "relatedFiles": [
+        {
+          "path": "components/invoice/PdfDownloadButton.tsx",
+          "type": "TO_MODIFY",
+          "description": "window.print() 제거 후 동적 import + Blob 다운로드로 재작성",
+          "lineStart": 1,
+          "lineEnd": 13
+        },
+        {
+          "path": "app/invoice/[slug]/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "<PdfDownloadButton invoice={invoice} /> 로 prop 전달",
+          "lineStart": 47,
+          "lineEnd": 47
+        },
+        {
+          "path": "components/invoice/InvoicePdfDocument.tsx",
+          "type": "DEPENDENCY",
+          "description": "동적 import 대상"
+        },
+        {
+          "path": "app/globals.css",
+          "type": "REFERENCE",
+          "description": "@media print 규칙 보존(변경 금지)"
+        }
+      ],
+      "implementationGuide": "1) PdfDownloadButton 재작성: 'use client' 유지, useState로 isGenerating 관리, lucide Download 아이콘 사용, props { invoice: Invoice }\\n2) 클릭 핸들러: setIsGenerating(true) → const [{ pdf }, { InvoicePdfDocument }] = await Promise.all([import('@react-pdf/renderer'), import('./InvoicePdfDocument')]) → const blob = await pdf(<InvoicePdfDocument invoice={invoice} />).toBlob() → URL.createObjectURL → 임시 <a> 엘리먼트 생성하고 href/download 설정 후 click() 호출 → URL.revokeObjectURL\\n3) 파일명: `invoice-${invoice.slug}.pdf`\\n4) try/catch/finally로 실패 시 console.error('[PDF Download]', err) + alert('PDF 생성에 실패했습니다.'), finally에서 setIsGenerating(false)\\n5) Button에 disabled={isGenerating}, className='no-print' 유지(Ctrl+P 시 버튼 자체는 숨김)\\n6) app/invoice/[slug]/page.tsx 47줄 부근의 <PdfDownloadButton /> 호출을 <PdfDownloadButton invoice={invoice} />로 수정. 다른 변경 없음\\n7) 검증: dev 서버 띄우고 실제 slug로 다운로드 → 인쇄 다이얼로그 없이 파일이 즉시 다운로드되는지, PDF 열어서 한글이 정상 보이고 드래그·복사·검색 가능한지 확인",
+      "verificationCriteria": "1) /invoice/<slug> 에서 PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그가 뜨지 않고 invoice-<slug>.pdf 파일이 즉시 다운로드된다\\n2) 다운로드된 PDF에서 한글이 정상 글자로 보이고 텍스트 드래그·복사·Ctrl+F 검색이 모두 가능하다\\n3) 다운로드 도중 버튼 라벨이 '생성 중...'이며 disabled 상태다\\n4) 다크 모드에서도 PDF는 흰 배경/검은 글씨로 출력된다\\n5) Ctrl+P 직접 인쇄도 기존과 동일하게 동작한다(@media print 보존 검증)\\n6) npm run build 가 오류 없이 통과한다",
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
     }
   ]
 }

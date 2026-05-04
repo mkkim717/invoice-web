@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,9 @@ interface ErrorProps {
 }
 
 export default function InvoiceError({ error, reset }: ErrorProps) {
+  useEffect(() => {
+    console.error("[Invoice Error]", error);
+  }, [error]);
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="flex flex-col items-center gap-6 text-center">

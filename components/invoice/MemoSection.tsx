@@ -10,10 +10,10 @@ export function MemoSection({ memo }: MemoSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-medium">메모 / 비고</CardTitle>
+        <CardTitle className="text-sm font-medium">비고</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{memo}</p>
+        <p className="text-sm whitespace-pre-wrap">{memo}</p>
       </CardContent>
     </Card>
   );

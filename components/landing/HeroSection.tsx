@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { FileText, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -23,13 +25,19 @@ export function HeroSection() {
             고객은 로그인 없이 URL로 확인하고 PDF로 저장할 수 있습니다.
           </p>
 
-          <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm">
-            <span className="text-muted-foreground">견적서 확인 방법:</span>
-            <code className="font-mono text-foreground">
-              /invoice/[견적서-슬러그]
-            </code>
-            <ArrowRight className="size-4 text-muted-foreground" />
-            <span className="text-foreground font-medium">바로 확인</span>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link href="/invoice/web-design-2024">데모 견적서 보기</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link
+                href="https://github.com/mkkim717/invoice-web"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

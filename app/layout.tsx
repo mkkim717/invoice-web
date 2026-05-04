@@ -19,10 +19,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Next.js Starter Kit",
-    template: "%s | Next.js Starter Kit",
+    default: "Invoice Web",
+    template: "%s | Invoice Web",
   },
-  description: "프로덕션 레디 Next.js 스타터킷",
+  description: "노션 기반 견적서 공유 서비스",
 };
 
 export default function RootLayout({

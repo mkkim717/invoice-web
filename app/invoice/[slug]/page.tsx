@@ -41,7 +41,7 @@ export default async function InvoicePage({
   if (invoice.status === "draft") notFound();
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 print:max-w-full print:px-0 print:py-4">
       <div className="flex flex-col gap-6 print:gap-4">
         <div className="flex justify-end no-print">
           <PdfDownloadButton />
@@ -50,11 +50,12 @@ export default async function InvoicePage({
         <InvoiceHeader
           title={invoice.title}
           issue_date={invoice.issue_date}
+          due_date={invoice.due_date}
           status={invoice.status}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <SenderInfo sender_name={invoice.sender_name} />
+          <SenderInfo sender_name={invoice.sender_name} sender_contact={invoice.sender_contact} />
           <ClientInfo client_name={invoice.client_name} />
         </div>
 
