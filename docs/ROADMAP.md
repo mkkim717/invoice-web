@@ -12,14 +12,14 @@
 
 ## 전체 진행률
 
-**Phase 1 (MVP) 진행률: 약 76% (13 / 17)**
+**Phase 1 (MVP) 진행률: 약 94% (17 / 18)**
 
-- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR), UI 세련화, PDF 인쇄 품질 개선, 에러 처리 강화
-- 진행 중: PDF 즉시 다운로드 셋업 (TASK-019)
-- 대기: PDF 벡터 레이아웃 컴포넌트(TASK-020), 다운로드 버튼 재작성(TASK-021), 배포(TASK-013)
+- 완료: 프로젝트 문서화, UI 프레임워크 설정, 라우팅 스캐폴드, 타입 정의, 공용 유틸리티, 견적서 UI 컴포넌트, 더미 데이터 페이지, 랜딩 페이지, 노션 API 클라이언트 설정, 노션 API 연동 레이어, 실제 데이터 연결(ISR), UI 세련화, PDF 인쇄 품질 개선, 에러 처리 강화, PDF 즉시 다운로드 기능
+- 진행 중: 없음
+- 대기: 배포(TASK-013)
 
 ```
-Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░  76%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-021)
+Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░  94%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-021)
 Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░   0%  (TASK-014 ~ TASK-018)
 ```
 
@@ -242,40 +242,40 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
     - [x] 기존 error.tsx UI 변경 없음
     - [x] `tsc --noEmit` 오류 없음
 
-### Phase 1-E: PDF 즉시 다운로드 기능 (대기)
+### Phase 1-E: PDF 즉시 다운로드 기능 (완료)
 
-- **TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업** [TODO]
+- **TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업** [완료]
   - 관련 파일
     - `package.json` (`@react-pdf/renderer` 의존성)
-    - `public/fonts/NotoSansKR-Regular.ttf` (신규)
-    - `public/fonts/NotoSansKR-Bold.ttf` (신규)
-  - 구현 사항
-    - `npm install @react-pdf/renderer`
-    - Noto Sans KR Regular/Bold ttf 파일을 `public/fonts/`에 배치 (SIL OFL 라이선스)
-    - dev 서버에서 `/fonts/NotoSansKR-*.ttf` 200 OK 확인
-    - `npm run build` 회귀 없음 확인
+    - `public/fonts/NotoSansKR-Regular.otf` (신규)
+    - `public/fonts/NotoSansKR-Bold.otf` (신규)
+  - 완료 항목
+    - [x] `@react-pdf/renderer` 설치 (53개 패키지 추가)
+    - [x] Noto Sans KR Regular/Bold `.otf` 파일을 `public/fonts/`에 배치 (SIL OFL, GitHub noto-cjk SubsetOTF)
+    - [x] dev 서버에서 `/fonts/NotoSansKR-Regular.otf`, `/fonts/NotoSansKR-Bold.otf` 200 OK 확인
+    - [x] `npm run build` 회귀 없음 확인
 
-- **TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)** [TODO]
+- **TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)** [완료]
   - 관련 파일
     - `components/invoice/InvoicePdfDocument.tsx` (신규)
-  - 구현 사항
-    - `Font.register`로 NotoSansKR Regular/Bold 임베딩
-    - `Document/Page/View/Text + StyleSheet`로 견적서 PDF 레이아웃 구현
-    - 헤더 → 발신자/고객 → 항목 테이블 → 합계 → 메모 배치
-    - `formatKRW`, `formatDate` 재사용 (`lib/format.ts`)
-    - 흰 배경 고정, TypeScript any 없음
+  - 완료 항목
+    - [x] `Font.register`로 NotoSansKR Regular/Bold `.otf` 임베딩
+    - [x] `Document/Page/View/Text + StyleSheet`로 견적서 PDF 레이아웃 구현
+    - [x] 헤더(제목·상태배지·발행일·유효기간) → 발신자/고객 2열 → 품목 테이블(헤더 `fixed`) → 합계 → 메모 배치
+    - [x] `formatKRW`, `formatDate` 재사용 (`lib/format.ts`)
+    - [x] 흰 배경 고정(hex 팔레트, oklch 미사용), TypeScript any 없음
 
-- **TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증** [TODO]
+- **TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증** [완료]
   - 관련 파일
     - `components/invoice/PdfDownloadButton.tsx` (재작성)
     - `app/invoice/[slug]/page.tsx` (prop 전달 추가)
-  - 구현 사항
-    - `window.print()` 제거, 동적 import로 `@react-pdf/renderer` + `InvoicePdfDocument` 지연 로드
-    - `pdf(...).toBlob()` → `URL.createObjectURL` → `<a download>` 트리거 → `URL.revokeObjectURL`
-    - `isGenerating` 상태로 버튼 비활성화 + "생성 중..." 라벨
-    - 파일명: `invoice-${invoice.slug}.pdf` (ASCII 안전)
-    - `<PdfDownloadButton invoice={invoice} />` prop 전달
-    - 다운로드된 PDF에서 텍스트 복사·Ctrl+F 검색 가능 확인
+  - 완료 항목
+    - [x] `window.print()` 제거, 동적 import로 `@react-pdf/renderer` + `InvoicePdfDocument` 지연 로드
+    - [x] `pdf(...).toBlob()` → `URL.createObjectURL` → `<a download>` 트리거 → `URL.revokeObjectURL`
+    - [x] `isGenerating` 상태로 버튼 비활성화 + "생성 중..." 라벨
+    - [x] 파일명: `invoice-${invoice.slug}.pdf` (ASCII 안전)
+    - [x] `<PdfDownloadButton invoice={invoice} />` prop 전달
+    - [x] 브라우저 실측: 인쇄 다이얼로그 없이 즉시 다운로드, 한글 정상 출력, 텍스트 복사·검색 가능 확인
 
 ### Phase 1-F: 배포 (대기)
 

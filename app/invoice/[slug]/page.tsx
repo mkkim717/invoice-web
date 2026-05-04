@@ -44,7 +44,7 @@ export default async function InvoicePage({
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 print:max-w-full print:px-0 print:py-4">
       <div className="flex flex-col gap-6 print:gap-4">
         <div className="flex justify-end no-print">
-          <PdfDownloadButton />
+          <PdfDownloadButton invoice={invoice} />
         </div>
 
         <InvoiceHeader

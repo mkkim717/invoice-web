@@ -656,10 +656,10 @@
       "name": "TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업",
       "description": "@react-pdf/renderer 클라이언트 사이드 PDF 생성 라이브러리를 설치하고, 한글 출력을 위해 Noto Sans KR Regular/Bold ttf 파일을 public/fonts/에 정적 자산으로 배치한다. 이후 InvoicePdfDocument와 PdfDownloadButton이 사용할 기반을 마련한다.\n\n생성/수정 파일:\n- package.json: @react-pdf/renderer 의존성 추가\n- public/fonts/NotoSansKR-Regular.ttf (신규): SIL OFL 라이선스 한글 폰트 Regular 400\n- public/fonts/NotoSansKR-Bold.ttf (신규): SIL OFL 라이선스 한글 폰트 Bold 700\n\n수락 기준:\n- npm run build 통과(의존성 추가만으로 회귀 없음)\n- 두 ttf 파일이 public/fonts/ 경로에 존재하고 dev 서버에서 /fonts/NotoSansKR-Regular.ttf URL로 200 응답",
       "notes": "ttf 파일은 git에 커밋(폰트 파일 자체는 SIL OFL이라 재배포 자유). 다른 weight나 woff2는 추가하지 않음(견적서에는 Regular/Bold 두 가지면 충분).",
-      "status": "in_progress",
+      "status": "completed",
       "dependencies": [],
       "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T14:47:36.365Z",
+      "updatedAt": "2026-05-04T14:57:30.549Z",
       "relatedFiles": [
         {
           "path": "package.json",
@@ -679,21 +679,23 @@
       ],
       "implementationGuide": "1) npm install @react-pdf/renderer 실행\\n2) Google Fonts 또는 공식 소스에서 Noto Sans KR Regular(weight 400) / Bold(weight 700) ttf 파일을 받아 public/fonts/ 디렉토리에 NotoSansKR-Regular.ttf, NotoSansKR-Bold.ttf 정확한 파일명으로 배치\\n3) npm run dev로 /fonts/NotoSansKR-Regular.ttf, /fonts/NotoSansKR-Bold.ttf 둘 다 브라우저에서 200 응답 확인\\n4) npm run build 회귀 없음 확인",
       "verificationCriteria": "1) /fonts/NotoSansKR-Regular.ttf 와 /fonts/NotoSansKR-Bold.ttf 가 dev 서버에서 200 OK로 서빙된다\\n2) package.json dependencies에 @react-pdf/renderer 항목이 추가되었다\\n3) npm run build 가 오류 없이 통과한다",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
+      "summary": "@react-pdf/renderer 설치 완료(53개 패키지 추가). Noto Sans KR Regular/Bold OTF 파일을 public/fonts/에 배치(각 4.5MB/4.6MB, SIL OFL 라이선스). dev 서버에서 /fonts/NotoSansKR-Regular.otf, /fonts/NotoSansKR-Bold.otf 모두 200 OK 응답 확인. npm run build 오류 없이 통과. 파일 확장자는 계획의 .ttf 대신 OTF 포맷 사용(react-pdf는 OTF 동일 지원).",
+      "completedAt": "2026-05-04T14:57:30.540Z"
     },
     {
       "id": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089",
       "name": "TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)",
       "description": "@react-pdf/renderer의 Document/Page/View/Text + StyleSheet API로 견적서 PDF 레이아웃을 구현한다. 화면용 8개 컴포넌트와는 출력 매체가 달라 재사용 불가하므로 신규 작성하되, 동일한 정보 배치(헤더 → 발신자/고객 → 항목 테이블 → 합계 → 메모)를 따른다. 한글 폰트는 모듈 최상단 Font.register로 1회 등록한다.\n\n생성 파일:\n- components/invoice/InvoicePdfDocument.tsx (신규): props { invoice: Invoice }\n\n사용/재사용:\n- lib/types.ts 의 Invoice 타입 import\n- lib/format.ts 의 formatKRW, formatDate 재사용\n- InvoiceStatusBadge의 한글 라벨 매핑(draft→임시 / sent→발송됨 / accepted→수락됨 / expired→만료)은 컴포넌트 내부 인라인 매퍼로 작성(재사용 가치보다 스코프 부풀림 회피)\n\n수락 기준:\n- TypeScript any 없음, strict 모드 통과\n- 다크모드와 무관하게 흰 배경/검은 글씨 고정 (StyleSheet에서 backgroundColor: '#ffffff', color: '#111827')\n- 항목이 많아 1페이지를 넘으면 자동 페이지 분할되며 테이블 헤더는 fixed 속성으로 매 페이지 상단에 반복",
       "notes": "InvoicePdfDocument는 page.tsx에서 직접 import 금지 — 반드시 PdfDownloadButton 내부에서만 dynamic import해야 react-pdf가 서버 번들에 새지 않는다. 'use client' 지시문은 불필요(컴포넌트 자체는 순수 함수, 클라이언트 진입점은 PdfDownloadButton).",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "ad9d7408-3ab7-4c6b-b959-31b9953d6a9b"
         }
       ],
       "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T14:44:08.499Z",
+      "updatedAt": "2026-05-04T15:00:57.441Z",
       "relatedFiles": [
         {
           "path": "components/invoice/InvoicePdfDocument.tsx",
@@ -718,21 +720,23 @@
       ],
       "implementationGuide": "1) 모듈 최상단에서 Font.register({ family: 'NotoSansKR', fonts: [{ src: '/fonts/NotoSansKR-Regular.ttf', fontWeight: 'normal' }, { src: '/fonts/NotoSansKR-Bold.ttf', fontWeight: 'bold' }] }) 호출\\n2) StyleSheet.create로 page(padding 40, fontFamily 'NotoSansKR', fontSize 10, color '#111827', backgroundColor '#ffffff'), headerTitle(fontSize 20 bold), metaRow/metaLabel/metaValue, sectionTitle, tableHeader/tableRow/cellName/cellQty/cellPrice/cellAmount, totalBox, memo 스타일 정의\\n3) <Document title={invoice.title} author={invoice.sender_name}> <Page size='A4' style={styles.page}> 최상위 골격 작성\\n4) Header 영역: title, '견적서' 라벨, issue_date(formatDate), due_date(있으면 formatDate, 없으면 '미지정'), status를 한글 라벨로 변환해 표시\\n5) Sender/Client 2열 그리드: sender_name, sender_contact(있으면), client_name\\n6) ItemsTable: 헤더 View에 fixed prop, 행은 invoice.items.map으로 name/quantity/unit_price(formatKRW)/amount(formatKRW)\\n7) Total: 우측 정렬 박스, total_amount를 formatKRW로 표시\\n8) Memo: invoice.memo가 truthy일 때만 렌더, 제목 '비고' + 본문\\n9) 색상은 hex 팔레트(예: #111827 텍스트, #6b7280 보조 텍스트, #e5e7eb 보더)만 사용. oklch 토큰 사용 금지(react-pdf 미지원)",
       "verificationCriteria": "1) InvoicePdfDocument를 단독으로 react-pdf의 pdf() 함수에 넘겨 Blob 생성이 성공한다\\n2) 생성된 PDF에서 한글 텍스트가 정상 글자로 보이고 텍스트 드래그·복사가 가능하다(raster 아님)\\n3) invoice.items 길이가 50건 이상인 가상 데이터로도 페이지 분할되고 테이블 헤더가 매 페이지 상단에 반복된다\\n4) any 타입 없이 TypeScript 컴파일 통과",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
+      "summary": "components/invoice/InvoicePdfDocument.tsx 신규 작성 완료. Font.register로 NotoSansKR Regular/Bold .otf 임베딩. Document/Page/View/Text + StyleSheet.create로 견적서 레이아웃 구현(헤더→상태배지→메타→발신자/고객 2열→품목 테이블→합계→메모). 테이블 헤더에 fixed prop 적용(매 페이지 반복). 마지막 행은 테두리 없는 스타일 분기. Invoice 타입 import, formatKRW/formatDate 재사용. 색상 hex 팔레트만 사용(oklch 없음). TypeScript any 없음, npx tsc --noEmit 오류 없음. npm run build 통과. page.tsx에서 직접 import하지 않으므로 서버 번들 분리 유지.",
+      "completedAt": "2026-05-04T15:00:57.435Z"
     },
     {
       "id": "1f207628-05a2-455b-a0e1-3465dc676409",
       "name": "TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증",
       "description": "기존 window.print() 호출 방식을 제거하고, 클릭 시 동적 import로 @react-pdf/renderer와 InvoicePdfDocument를 지연 로드해 Blob을 생성하고 임시 <a download> 클릭으로 즉시 다운로드를 트리거한다. app/invoice/[slug]/page.tsx에서 PdfDownloadButton에 invoice 객체를 prop으로 전달한다. 기존 @media print 규칙은 Ctrl+P 사용자를 위해 그대로 보존한다.\n\n수정 파일:\n- components/invoice/PdfDownloadButton.tsx: 전면 재작성, props { invoice: Invoice }, 클라이언트 컴포넌트 유지\n- app/invoice/[slug]/page.tsx: <PdfDownloadButton invoice={invoice} /> 로 prop 전달\n\n수락 기준:\n- 인쇄 다이얼로그 없이 invoice-{slug}.pdf 가 즉시 다운로드된다\n- isGenerating 상태로 버튼이 잠시 비활성화되며 라벨이 '생성 중...'으로 변경된다\n- 다운로드된 PDF 텍스트가 복사·Ctrl+F 검색 가능하다\n- 다크 모드에서도 PDF는 흰 배경으로 일관된다\n- @media print 규칙은 변경 없음, Ctrl+P 직접 인쇄도 여전히 동작한다\n- npm run build 회귀 없음",
       "notes": "globals.css의 @media print 블록은 손대지 않는다. invoice 객체는 plain object이므로 RSC → 클라이언트 컴포넌트로 그대로 직렬화 전달 가능.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         {
           "taskId": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089"
         }
       ],
       "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T14:44:08.499Z",
+      "updatedAt": "2026-05-04T15:05:49.139Z",
       "relatedFiles": [
         {
           "path": "components/invoice/PdfDownloadButton.tsx",
@@ -761,7 +765,9 @@
       ],
       "implementationGuide": "1) PdfDownloadButton 재작성: 'use client' 유지, useState로 isGenerating 관리, lucide Download 아이콘 사용, props { invoice: Invoice }\\n2) 클릭 핸들러: setIsGenerating(true) → const [{ pdf }, { InvoicePdfDocument }] = await Promise.all([import('@react-pdf/renderer'), import('./InvoicePdfDocument')]) → const blob = await pdf(<InvoicePdfDocument invoice={invoice} />).toBlob() → URL.createObjectURL → 임시 <a> 엘리먼트 생성하고 href/download 설정 후 click() 호출 → URL.revokeObjectURL\\n3) 파일명: `invoice-${invoice.slug}.pdf`\\n4) try/catch/finally로 실패 시 console.error('[PDF Download]', err) + alert('PDF 생성에 실패했습니다.'), finally에서 setIsGenerating(false)\\n5) Button에 disabled={isGenerating}, className='no-print' 유지(Ctrl+P 시 버튼 자체는 숨김)\\n6) app/invoice/[slug]/page.tsx 47줄 부근의 <PdfDownloadButton /> 호출을 <PdfDownloadButton invoice={invoice} />로 수정. 다른 변경 없음\\n7) 검증: dev 서버 띄우고 실제 slug로 다운로드 → 인쇄 다이얼로그 없이 파일이 즉시 다운로드되는지, PDF 열어서 한글이 정상 보이고 드래그·복사·검색 가능한지 확인",
       "verificationCriteria": "1) /invoice/<slug> 에서 PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그가 뜨지 않고 invoice-<slug>.pdf 파일이 즉시 다운로드된다\\n2) 다운로드된 PDF에서 한글이 정상 글자로 보이고 텍스트 드래그·복사·Ctrl+F 검색이 모두 가능하다\\n3) 다운로드 도중 버튼 라벨이 '생성 중...'이며 disabled 상태다\\n4) 다크 모드에서도 PDF는 흰 배경/검은 글씨로 출력된다\\n5) Ctrl+P 직접 인쇄도 기존과 동일하게 동작한다(@media print 보존 검증)\\n6) npm run build 가 오류 없이 통과한다",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다."
+      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
+      "summary": "PdfDownloadButton 전면 재작성 완료. window.print() 제거, 동적 import(@react-pdf/renderer + InvoicePdfDocument) + pdf().toBlob() + URL.createObjectURL + 임시 a 태그 클릭 + URL.revokeObjectURL 흐름으로 즉시 다운로드 구현. page.tsx에 invoice prop 전달. 브라우저 실제 테스트: 인쇄 다이얼로그 없이 PDF가 즉시 다운로드되었고 Adobe Acrobat에서 한글(제목, 발신자, 품목명, 금액)이 정상 렌더링됨. 레이아웃(헤더/상태배지/테이블/합계) 모두 올바르게 출력. TypeScript any 없음, npm run build 통과, globals.css @media print 변경 없음.",
+      "completedAt": "2026-05-04T15:05:49.132Z"
     }
   ]
 }
