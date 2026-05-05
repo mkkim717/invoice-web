@@ -21,7 +21,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-14 w-full max-w-2xl items-center justify-between px-4">
         {/* 로고 + 데스크탑 네비게이션 */}
         <div className="flex items-center gap-2">
           <Link href="/" className="font-semibold text-foreground">

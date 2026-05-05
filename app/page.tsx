@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { FileText, Download, AlertCircle } from "lucide-react";
 import {
   Card,
@@ -83,6 +84,15 @@ export default function HomePage() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/admin"
+            className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          >
+            admin
+          </Link>
         </div>
       </div>
     </div>
