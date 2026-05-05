@@ -5,7 +5,7 @@ import {
   mapNotionItemPageToInvoiceItem,
   getRelationIds,
 } from "@/lib/notion-mapper";
-import type { Invoice, InvoiceItem } from "@/lib/types";
+import type { Invoice, InvoiceItem, InvoiceStatus } from "@/lib/types";
 
 export class NotionApiError extends Error {
   constructor(message: string, public readonly cause?: unknown) {
@@ -58,6 +58,50 @@ export async function getInvoiceBySlug(slug: string): Promise<Invoice | null> {
       `slug '${slug}' 견적서 조회 중 오류가 발생했습니다.`,
       error
     );
+  }
+}
+
+export async function listAllInvoices(): Promise<Invoice[]> {
+  try {
+    const response = await notion.databases.query({
+      database_id: env.NOTION_DATABASE_ID,
+      sorts: [{ property: "issue_date", direction: "descending" }],
+    });
+
+    const fullPages = response.results.filter(isFullPage);
+    const invoices = await Promise.all(
+      fullPages.map(async (page) => {
+        try {
+          const itemIds = getRelationIds(page.properties);
+          const items = await fetchItems(itemIds);
+          return mapNotionPageToInvoice(page, items);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return invoices.filter((inv): inv is Invoice => inv !== null);
+  } catch (error) {
+    throw new NotionApiError("전체 견적서 목록 조회 중 오류가 발생했습니다.", error);
+  }
+}
+
+export async function updateInvoiceStatus(
+  pageId: string,
+  status: InvoiceStatus
+): Promise<void> {
+  try {
+    await notion.pages.update({
+      page_id: pageId,
+      properties: {
+        status: {
+          rich_text: [{ type: "text", text: { content: status } }],
+        },
+      },
+    });
+  } catch (error) {
+    throw new NotionApiError("견적서 상태 업데이트 중 오류가 발생했습니다.", error);
   }
 }
 

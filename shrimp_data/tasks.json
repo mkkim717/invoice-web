@@ -1,819 +1,200 @@
 {
   "tasks": [
     {
-      "id": "c36db18f-2dff-4a8a-83d1-8f997b061fb2",
-      "name": "TASK-003: 라우팅 구조 및 빈 페이지 스캐폴드",
-      "description": "Next.js 16 App Router 기반으로 invoice 서비스의 핵심 라우트 파일을 생성한다. 데이터 페칭 없이 placeholder UI만 구현하며, 각 파일의 올바른 Next.js 16 시그니처를 확립한다.\n\n생성 파일:\n- app/invoice/[slug]/page.tsx: 동적 라우트 서버 컴포넌트, params는 Promise<{slug:string}> await 처리, export const revalidate = 60, placeholder UI\n- app/invoice/[slug]/not-found.tsx: 서버 컴포넌트, 견적서 없음 안내 + 홈 링크\n- app/invoice/[slug]/error.tsx: \"use client\" 필수, error/reset props 수신, 다시 시도 버튼\n- app/error.tsx: \"use client\" 필수, 전역 에러 폴백, 홈으로 이동 버튼",
-      "notes": "app/about/, app/dashboard/는 현재 NAV_LINKS에 포함된 스타터킷 데모 페이지이므로 삭제하지 않고 유지. not-found.tsx 파일명은 정확히 'not-found.tsx'여야 Next.js가 인식함.",
+      "id": "7d80d3e9-29c0-4f03-a9a4-9b51be4dc1c4",
+      "name": "TASK-014-1: 어드민 인증 기반 구축 (env, middleware, 로그인 페이지)",
+      "description": "환경변수 기반 패스워드 인증 시스템 구축. ADMIN_PASSWORD/ADMIN_SECRET 환경변수 추가, middleware.ts로 /admin/* 경로 보호, 로그인/로그아웃 Server Actions, 로그인 페이지 구현.",
+      "notes": "middleware.ts는 Edge Runtime이므로 Node.js crypto 모듈 불가. SubtleCrypto(Web Crypto API) 사용. deriveToken 함수는 async. middleware에서 await 가능. ADMIN_SECRET은 토큰 서명 키로 사용 (없으면 빌드 오류). .env.local에 두 변수 추가 필요.",
       "status": "completed",
       "dependencies": [],
-      "createdAt": "2026-05-03T08:05:32.889Z",
-      "updatedAt": "2026-05-03T08:11:22.989Z",
+      "createdAt": "2026-05-04T23:27:27.259Z",
+      "updatedAt": "2026-05-05T00:00:58.044Z",
       "relatedFiles": [
         {
-          "path": "app/invoice/[slug]/page.tsx",
+          "path": "lib/env.ts",
+          "type": "TO_MODIFY",
+          "description": "ADMIN_PASSWORD, ADMIN_SECRET 환경변수 추가"
+        },
+        {
+          "path": "lib/auth.ts",
           "type": "CREATE",
-          "description": "견적서 조회 동적 라우트 페이지 (placeholder)"
+          "description": "HMAC 토큰 생성/검증 유틸리티"
         },
         {
-          "path": "app/invoice/[slug]/not-found.tsx",
+          "path": "middleware.ts",
           "type": "CREATE",
-          "description": "견적서 없음 / draft 상태 처리 페이지"
+          "description": "어드민 경로 인증 미들웨어"
         },
         {
-          "path": "app/invoice/[slug]/error.tsx",
+          "path": "app/admin/actions.ts",
           "type": "CREATE",
-          "description": "견적서 페이지 에러 경계 (use client)"
+          "description": "login/logout Server Actions"
         },
         {
-          "path": "app/error.tsx",
+          "path": "app/admin/login/page.tsx",
           "type": "CREATE",
-          "description": "전역 에러 폴백 (use client)"
-        },
-        {
-          "path": "app/layout.tsx",
-          "type": "REFERENCE",
-          "description": "루트 레이아웃 구조 참고"
-        },
-        {
-          "path": "components/ui/button.tsx",
-          "type": "DEPENDENCY",
-          "description": "Button 컴포넌트"
-        },
-        {
-          "path": "lib/constants.ts",
-          "type": "REFERENCE",
-          "description": "SITE_CONFIG 참고"
+          "description": "로그인 페이지"
         }
       ],
-      "implementationGuide": "1. app/invoice/[slug]/ 디렉토리 구조 생성\n2. page.tsx: async function InvoicePage({ params }: { params: Promise<{ slug: string }> }) → const { slug } = await params → placeholder div 반환, export const revalidate = 60\n3. not-found.tsx: 서버 컴포넌트, Link href=\"/\" 포함, 한국어 메시지\n4. error.tsx: \"use client\", props: { error: Error; reset: () => void }, Button onClick={reset}\n5. app/error.tsx: \"use client\", 전역 폴백, Button asChild Link href=\"/\"\n6. 모든 파일 컨테이너 패턴: mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8\n7. shadcn Button, Card 컴포넌트 활용",
-      "verificationCriteria": "1. npm run dev 실행 후 /invoice/test-slug 접근 시 placeholder 페이지 렌더링\n2. /invoice/test-slug 에서 존재하지 않는 slug notFound() 호출 시 not-found 페이지 표시\n3. error.tsx에 \"use client\" 선언 확인\n4. TypeScript 컴파일 오류 없음 (npm run build 또는 tsc --noEmit)\n5. params가 await로 처리됨 확인",
-      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
-      "summary": "4개 파일 모두 생성 완료. page.tsx: async 서버 컴포넌트, params Promise await 처리, revalidate=60, Skeleton placeholder UI. not-found.tsx: 서버 컴포넌트, 한국어 안내 메시지 + 홈 링크. error.tsx(slug): \"use client\", error/reset props, 다시 시도 + 홈 버튼. app/error.tsx: \"use client\", 전역 폴백, error.digest 표시. tsc --noEmit 오류 없음. 컨테이너 패턴·한국어 UI·shadcn 컴포넌트 활용 모두 준수.",
-      "completedAt": "2026-05-03T08:11:22.986Z"
+      "implementationGuide": "1. lib/env.ts 수정: envSchema에 ADMIN_PASSWORD(z.string().min(1)), ADMIN_SECRET(z.string().min(1)) 추가\n2. lib/auth.ts 신규 생성:\n   - deriveToken(password, secret): Web Crypto SubtleCrypto로 HMAC-SHA256 계산, hex 문자열 반환\n   - verifyAdminCookie(cookieValue, env): cookieValue === deriveToken(ADMIN_PASSWORD, ADMIN_SECRET)\n   - COOKIE_NAME = 'admin_token'\n3. middleware.ts 신규 생성 (Edge Runtime):\n   - matcher: ['/admin/:path*']\n   - /admin/login은 통과\n   - 쿠키 'admin_token' 값 검증 → 실패 시 /admin/login으로 redirect\n   - verifyAdminCookie 직접 인라인 (Edge에서 lib/auth 임포트 시 HMAC 계산)\n4. app/admin/actions.ts 신규 생성 ('use server'):\n   - loginAction(formData): ADMIN_PASSWORD 비교 → 일치 시 deriveToken으로 토큰 생성 → cookies().set(COOKIE_NAME, token, { httpOnly, secure, sameSite:'lax', maxAge:86400 }) → redirect('/admin/invoices')\n   - logoutAction(): cookies().delete(COOKIE_NAME) → redirect('/admin/login')\n5. app/admin/login/page.tsx 신규 생성 (서버 컴포넌트):\n   - 카드 중앙 정렬 레이아웃, Input[type=password] + 로그인 Button\n   - form action={loginAction}\n   - 에러 파라미터 있으면 에러 메시지 표시",
+      "verificationCriteria": "1. /admin 접근 시 쿠키 없으면 /admin/login으로 리다이렉트\n2. 올바른 비밀번호로 로그인 시 /admin/invoices로 이동\n3. 틀린 비밀번호 입력 시 에러 메시지 표시\n4. 로그아웃 후 /admin/login으로 리다이렉트\n5. tsc --noEmit 오류 없음",
+      "analysisResult": "TASK-014 어드민 대시보드: Next.js 16 App Router 기반. 환경변수 패스워드 인증(HMAC + HttpOnly 쿠키) + middleware.ts 경로 보호 + listAllInvoices/updateInvoiceStatus 노션 API 확장 + 견적서 목록/상태 필터/상태 변경 UI. 기존 InvoiceStatusBadge, formatKRW, shadcn/ui Table 재사용. 서버 컴포넌트 우선, 클라이언트 컴포넌트 최소화. searchParams는 Next.js 16에서 Promise 타입.",
+      "summary": "환경변수 기반 인증 시스템 완전 구현. lib/env.ts에 ADMIN_PASSWORD/ADMIN_SECRET Zod 검증 추가. lib/auth.ts에 Web Crypto SubtleCrypto HMAC-SHA256 deriveToken 함수 생성(Edge Runtime 호환). middleware.ts에 /admin/:path* 매처, /admin/login 통과, 쿠키 검증 → 실패 시 리다이렉트 구현. app/admin/actions.ts에 loginAction(비밀번호 검증 → HttpOnly 쿠키 설정 → 리다이렉트), logoutAction(쿠키 삭제) Server Action 구현. app/admin/login/page.tsx에 searchParams: Promise 패턴(Next.js 16), 에러 파라미터 표시, shadcn Card/Input/Button 활용 로그인 폼 구현. .env.local에 임시 기본값 추가(운영 전 변경 필요). tsc --noEmit 오류 없음.",
+      "completedAt": "2026-05-05T00:00:58.040Z"
     },
     {
-      "id": "6c90973c-090d-40ba-9bc4-f73c3401d336",
-      "name": "TASK-004: 타입 정의 및 데이터 인터페이스 설계",
-      "description": "Invoice 도메인의 TypeScript 타입과 Zod v4 런타임 스키마를 정의한다. any 타입 사용 금지 원칙을 준수하며, TypeScript 타입은 Zod schema에서 z.infer로 추출하여 단일 소스를 유지한다.\n\n생성 파일:\n- lib/types.ts: InvoiceStatus, InvoiceItem, Invoice 인터페이스 + Zod 스키마 + z.infer 타입 추출\n- lib/notion-schema.ts: 노션 API 원시 응답 구조 Zod 스키마 (rich_text, select, date, number 속성 타입)",
-      "notes": "Zod v4 문법 사용: z.nullable()은 z.string().nullable() 형태. z.infer<typeof Schema>로 타입 추출. z.enum()의 인자는 배열 리터럴. notion-schema.ts는 TASK-009(노션 API 연동)에서 실제 파싱에 사용될 예정이므로 정확한 노션 API 응답 구조 반영 필요.",
+      "id": "27895710-5dd9-4015-946e-c6c52cfa0fcd",
+      "name": "TASK-014-2: 노션 API 확장 (listAllInvoices, updateInvoiceStatus)",
+      "description": "lib/notion.ts에 어드민용 함수 2개 추가. listAllInvoices()는 draft 포함 전체 조회, updateInvoiceStatus()는 노션 페이지의 status rich_text 속성을 업데이트.",
+      "notes": "기존 listInvoices()는 변경하지 않음 (고객용 페이지 영향 없게). rich_text 속성 업데이트 시 type: 'text' 명시 필요. @notionhq/client v2 API 준수.",
       "status": "completed",
       "dependencies": [],
-      "createdAt": "2026-05-03T08:05:32.889Z",
-      "updatedAt": "2026-05-03T08:12:17.707Z",
+      "createdAt": "2026-05-04T23:27:27.259Z",
+      "updatedAt": "2026-05-05T00:01:01.024Z",
       "relatedFiles": [
+        {
+          "path": "lib/notion.ts",
+          "type": "TO_MODIFY",
+          "description": "listAllInvoices, updateInvoiceStatus 함수 추가",
+          "lineStart": 64,
+          "lineEnd": 94
+        },
         {
           "path": "lib/types.ts",
-          "type": "CREATE",
-          "description": "Invoice 도메인 타입 + Zod 스키마"
-        },
-        {
-          "path": "lib/notion-schema.ts",
-          "type": "CREATE",
-          "description": "노션 API 원시 응답 구조 Zod 스키마"
-        },
-        {
-          "path": "docs/PRD.md",
           "type": "REFERENCE",
-          "description": "노션 DB 속성 스키마 및 Invoice 타입 명세",
-          "lineStart": 1,
-          "lineEnd": 80
+          "description": "InvoiceStatus 타입 참조"
         }
       ],
-      "implementationGuide": "lib/types.ts 구조:\n- import { z } from 'zod'\n- InvoiceItemSchema = z.object({ name: z.string(), quantity: z.number(), unit_price: z.number(), amount: z.number() })\n- InvoiceStatusSchema = z.enum(['draft', 'sent', 'accepted', 'expired'])\n- InvoiceSchema = z.object({ id: z.string(), title: z.string(), slug: z.string(), client_name: z.string(), issue_date: z.string(), due_date: z.string().nullable(), status: InvoiceStatusSchema, total_amount: z.number(), memo: z.string().nullable(), items: z.array(InvoiceItemSchema), sender_name: z.string(), sender_contact: z.string().nullable() })\n- export type InvoiceItem = z.infer<typeof InvoiceItemSchema>\n- export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>\n- export type Invoice = z.infer<typeof InvoiceSchema>\n\nlib/notion-schema.ts 구조:\n- NotionRichTextSchema = z.object({ plain_text: z.string() })\n- NotionRichTextPropertySchema = z.object({ rich_text: z.array(NotionRichTextSchema) })\n- NotionSelectPropertySchema = z.object({ select: z.object({ name: z.string() }).nullable() })\n- NotionDatePropertySchema = z.object({ date: z.object({ start: z.string() }).nullable() })\n- NotionNumberPropertySchema = z.object({ number: z.number().nullable() })\n- NotionTitlePropertySchema = z.object({ title: z.array(NotionRichTextSchema) })\n- NotionInvoicePropertiesSchema: 위 속성들을 조합한 전체 properties 스키마",
-      "verificationCriteria": "1. any 타입이 단 한 곳도 사용되지 않음\n2. TypeScript strict 모드에서 컴파일 오류 없음\n3. InvoiceStatus가 'draft' | 'sent' | 'accepted' | 'expired' 4개 값으로 제한됨\n4. Invoice 타입의 모든 필수/선택 필드가 PRD 명세와 일치\n5. z.infer로 추출된 타입이 TypeScript interface와 구조적으로 동일",
-      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
-      "summary": "lib/types.ts: InvoiceItemSchema·InvoiceStatusSchema·InvoiceSchema 정의, z.infer로 타입 추출, PRD 명세 11개 필드 완전 일치. lib/notion-schema.ts: Notion API 원시 응답 구조 6종 속성 스키마(RichText/Title/Select/Date/Number) + NotionInvoicePropertiesSchema 전체 매핑. any 타입 없음, tsc --noEmit 오류 없음, Zod v4 문법 준수.",
-      "completedAt": "2026-05-03T08:12:17.700Z"
+      "implementationGuide": "1. lib/notion.ts에 listAllInvoices() 추가:\n   - 기존 listInvoices()에서 filter의 draft 제외 조건 제거\n   - status 필드 존재 여부만 확인하거나 필터 없이 전체 조회\n   - sorts: [{ property: 'issue_date', direction: 'descending' }] 유지\n2. lib/notion.ts에 updateInvoiceStatus(pageId: string, status: InvoiceStatus) 추가:\n   - notion.pages.update({ page_id: pageId, properties: { status: { rich_text: [{ type: 'text', text: { content: status } }] } } })\n   - 성공 시 void 반환, 실패 시 NotionApiError throw\n3. InvoiceStatus 타입 임포트 확인 (lib/types.ts에서)",
+      "verificationCriteria": "1. listAllInvoices() 호출 시 draft 포함 전체 견적서 반환\n2. updateInvoiceStatus(pageId, 'accepted') 호출 시 노션 페이지 status 필드 업데이트\n3. tsc --noEmit 오류 없음\n4. 기존 listInvoices() 동작 변경 없음",
+      "analysisResult": "TASK-014 어드민 대시보드: Next.js 16 App Router 기반. 환경변수 패스워드 인증(HMAC + HttpOnly 쿠키) + middleware.ts 경로 보호 + listAllInvoices/updateInvoiceStatus 노션 API 확장 + 견적서 목록/상태 필터/상태 변경 UI. 기존 InvoiceStatusBadge, formatKRW, shadcn/ui Table 재사용. 서버 컴포넌트 우선, 클라이언트 컴포넌트 최소화. searchParams는 Next.js 16에서 Promise 타입.",
+      "summary": "lib/notion.ts에 어드민용 함수 2개 추가 완료. listAllInvoices(): 기존 listInvoices()와 동일한 구조에서 draft 제외 필터만 제거하여 전체 견적서 조회. updateInvoiceStatus(pageId, status): notion.pages.update()로 rich_text 타입 status 속성 업데이트, 실패 시 NotionApiError throw. InvoiceStatus 타입 임포트 추가. 기존 listInvoices() 동작 완전 유지. tsc --noEmit 오류 없음.",
+      "completedAt": "2026-05-05T00:01:01.020Z"
     },
     {
-      "id": "fdae283b-f668-4ada-83d5-4daabafdb40e",
-      "name": "TASK-004.5: 공용 유틸리티 및 공용 컴포넌트 셋업",
-      "description": "도메인 비종속 공용 포맷팅 유틸리티와 재사용 가능한 UI 컴포넌트를 구축한다. 이후 TASK-005(견적서 UI 컴포넌트)에서 중복 없이 재사용할 수 있도록 기반을 마련한다.\n\n생성/수정 파일:\n- lib/format.ts: formatKRW, formatDate, formatQuantity 포맷팅 함수\n- components/common/LoadingSpinner.tsx: 로딩 표시 컴포넌트\n- components/common/EmptyState.tsx: 빈 상태 안내 컴포넌트\n- components/common/ErrorMessage.tsx: 에러 메시지 표시 컴포넌트",
-      "notes": "components/ui/spinner.tsx가 이미 존재하므로 LoadingSpinner는 이를 감싸는 래퍼로 구현. Badge/Skeleton/Separator는 이미 components/ui/에 설치되어 있으므로 재설치 불필요. common 컴포넌트들은 \"use client\" 불필요 — 순수 표시 컴포넌트.",
+      "id": "2a9e975d-94a4-4e85-99a5-010095b1018c",
+      "name": "TASK-014-3: 어드민 레이아웃 및 견적서 목록 페이지",
+      "description": "어드민 전용 레이아웃(공용 Header/Footer 없음) + /admin/invoices 목록 페이지 + AdminInvoiceTable 서버 컴포넌트 구현. 상태 필터링은 URL searchParams 기반.",
+      "notes": "Next.js 16에서 searchParams는 Promise 타입: const { status } = await searchParams. dynamic = 'force-dynamic'으로 캐싱 비활성화 필수(어드민은 항상 최신 데이터). StatusUpdateSelect는 TASK-014-4에서 구현하므로 이 단계에서는 placeholder 버튼으로 대체 가능.",
       "status": "completed",
       "dependencies": [
         {
-          "taskId": "6c90973c-090d-40ba-9bc4-f73c3401d336"
+          "taskId": "7d80d3e9-29c0-4f03-a9a4-9b51be4dc1c4"
+        },
+        {
+          "taskId": "27895710-5dd9-4015-946e-c6c52cfa0fcd"
         }
       ],
-      "createdAt": "2026-05-03T08:05:32.889Z",
-      "updatedAt": "2026-05-03T08:13:54.076Z",
+      "createdAt": "2026-05-04T23:27:27.259Z",
+      "updatedAt": "2026-05-05T00:14:12.528Z",
       "relatedFiles": [
         {
-          "path": "lib/format.ts",
+          "path": "app/admin/layout.tsx",
           "type": "CREATE",
-          "description": "KRW 금액, 날짜, 수량 포맷팅 유틸리티"
+          "description": "어드민 전용 레이아웃"
         },
         {
-          "path": "components/common/LoadingSpinner.tsx",
+          "path": "app/admin/page.tsx",
           "type": "CREATE",
-          "description": "로딩 스피너 공용 컴포넌트"
+          "description": "/admin → /admin/invoices 리다이렉트"
         },
         {
-          "path": "components/common/EmptyState.tsx",
+          "path": "app/admin/invoices/page.tsx",
           "type": "CREATE",
-          "description": "빈 상태 안내 공용 컴포넌트"
+          "description": "견적서 목록 페이지 (서버 컴포넌트)"
         },
         {
-          "path": "components/common/ErrorMessage.tsx",
+          "path": "components/admin/AdminInvoiceTable.tsx",
           "type": "CREATE",
-          "description": "에러 메시지 표시 공용 컴포넌트"
+          "description": "견적서 목록 테이블 (서버 컴포넌트)"
         },
-        {
-          "path": "lib/utils.ts",
-          "type": "REFERENCE",
-          "description": "cn() 유틸리티 참고"
-        },
-        {
-          "path": "components/ui/spinner.tsx",
-          "type": "DEPENDENCY",
-          "description": "기존 스피너 컴포넌트 재사용"
-        },
-        {
-          "path": "components/ui/alert.tsx",
-          "type": "DEPENDENCY",
-          "description": "Alert 컴포넌트 (ErrorMessage용)"
-        },
-        {
-          "path": "components/ui/skeleton.tsx",
-          "type": "DEPENDENCY",
-          "description": "Skeleton 컴포넌트"
-        }
-      ],
-      "implementationGuide": "lib/format.ts:\n- const krwFormatter = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }) — 모듈 레벨 캐싱\n- export function formatKRW(amount: number): string → krwFormatter.format(amount)\n- export function formatDate(isoString: string): string → new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(isoString))\n- export function formatQuantity(value: number, unit?: string): string → unit ? value + unit : value.toLocaleString('ko-KR')\n\ncomponents/common/LoadingSpinner.tsx:\n- 서버 컴포넌트, \"use client\" 불필요\n- components/ui/spinner.tsx 또는 components/ui/skeleton.tsx 활용\n- size prop: 'sm' | 'md' | 'lg' 선택적 제공\n\ncomponents/common/EmptyState.tsx:\n- 서버 컴포넌트\n- props: { icon?: React.ReactNode, title: string, description?: string, action?: React.ReactNode }\n- 중앙 정렬 레이아웃, muted-foreground 색상\n\ncomponents/common/ErrorMessage.tsx:\n- 서버 컴포넌트\n- props: { message: string, description?: string }\n- destructive 색상 계열 사용 (text-destructive)\n- Alert 컴포넌트(@/components/ui/alert) 활용 가능",
-      "verificationCriteria": "1. formatKRW(1500000) → '₩1,500,000' 형식 반환\n2. formatDate('2024-01-15') → '2024년 1월 15일' 형식 반환\n3. LoadingSpinner, EmptyState, ErrorMessage 컴포넌트가 TypeScript 오류 없이 렌더링\n4. 공용 컴포넌트에 \"use client\" 선언 없음 확인\n5. npm run build 성공",
-      "analysisResult": "Phase 1-B 애플리케이션 골격 구축: Next.js 16 App Router 기반 invoice 서비스의 라우트 구조, TypeScript 타입 시스템, 공용 유틸리티를 순서대로 구축한다. 모든 코드는 any 금지·Zod v4·한국어 UI·서버 컴포넌트 기본 원칙을 따른다. @/* 경로 alias는 프로젝트 루트 기준이며 src/ 디렉토리가 없다.",
-      "summary": "lib/format.ts: krwFormatter/dateFormatter 모듈 레벨 캐싱, formatKRW·formatDate·formatQuantity 구현. LoadingSpinner: ui/spinner.tsx 래퍼, size sm/md/lg prop. EmptyState: icon/title/description/action 선택 props, 서버 컴포넌트. ErrorMessage: Alert destructive 변형 활용, AlertCircle 아이콘. 4개 파일 모두 \"use client\" 없음. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T08:13:54.068Z"
-    },
-    {
-      "id": "7ecff0bd-8bae-4f0e-b179-a3b59eda4c7e",
-      "name": "TASK-005: 견적서 UI 컴포넌트 라이브러리 구현",
-      "description": "견적서 도메인 전용 UI 컴포넌트 8종을 구현한다. Invoice 타입을 props로 수신하며 모두 서버 컴포넌트(PdfDownloadButton만 클라이언트)로 구성한다.\n\n생성 파일:\n- components/invoice/InvoiceStatusBadge.tsx: status → Badge variant 매핑\n- components/invoice/InvoiceHeader.tsx: 제목·발행일·유효기간·상태배지\n- components/invoice/SenderInfo.tsx: 발신자명·연락처\n- components/invoice/ClientInfo.tsx: 고객사명\n- components/invoice/ItemsTable.tsx: 품목 테이블 (shadcn Table)\n- components/invoice/TotalSection.tsx: 합계 금액\n- components/invoice/MemoSection.tsx: 메모/비고 (null이면 미렌더링)\n- components/invoice/PdfDownloadButton.tsx: window.print() 클라이언트 컴포넌트",
-      "notes": "shadcn Table 컴포넌트는 'use client' 선언되어 있으나 서버 컴포넌트인 ItemsTable에서 import 가능(RSC leaf 규칙). 각 컴포넌트 props는 Invoice 전체가 아닌 필요한 필드만 Pick으로 수신해 의존성 최소화. accepted 상태 배지는 variant='outline' + 녹색 텍스트 클래스로 구분.",
-      "status": "completed",
-      "dependencies": [],
-      "createdAt": "2026-05-03T08:43:59.111Z",
-      "updatedAt": "2026-05-03T08:46:25.237Z",
-      "relatedFiles": [
         {
           "path": "components/invoice/InvoiceStatusBadge.tsx",
-          "type": "CREATE",
-          "description": "상태 배지 컴포넌트"
-        },
-        {
-          "path": "components/invoice/InvoiceHeader.tsx",
-          "type": "CREATE",
-          "description": "견적서 헤더"
-        },
-        {
-          "path": "components/invoice/SenderInfo.tsx",
-          "type": "CREATE",
-          "description": "발신자 정보"
-        },
-        {
-          "path": "components/invoice/ClientInfo.tsx",
-          "type": "CREATE",
-          "description": "고객사 정보"
-        },
-        {
-          "path": "components/invoice/ItemsTable.tsx",
-          "type": "CREATE",
-          "description": "품목 테이블"
-        },
-        {
-          "path": "components/invoice/TotalSection.tsx",
-          "type": "CREATE",
-          "description": "합계 금액"
-        },
-        {
-          "path": "components/invoice/MemoSection.tsx",
-          "type": "CREATE",
-          "description": "메모/비고"
-        },
-        {
-          "path": "components/invoice/PdfDownloadButton.tsx",
-          "type": "CREATE",
-          "description": "PDF 다운로드 버튼 (클라이언트)"
-        },
-        {
-          "path": "lib/types.ts",
-          "type": "DEPENDENCY",
-          "description": "Invoice, InvoiceItem, InvoiceStatus 타입"
+          "type": "REFERENCE",
+          "description": "상태 배지 재사용"
         },
         {
           "path": "lib/format.ts",
-          "type": "DEPENDENCY",
-          "description": "formatKRW, formatDate, formatQuantity"
-        },
-        {
-          "path": "components/ui/badge.tsx",
-          "type": "DEPENDENCY",
-          "description": "Badge 컴포넌트"
-        },
-        {
-          "path": "components/ui/card.tsx",
-          "type": "DEPENDENCY",
-          "description": "Card 컴포넌트"
+          "type": "REFERENCE",
+          "description": "formatKRW, formatDate 재사용"
         },
         {
           "path": "components/ui/table.tsx",
           "type": "DEPENDENCY",
-          "description": "Table 컴포넌트"
+          "description": "shadcn Table 컴포넌트"
         },
         {
-          "path": "components/ui/button.tsx",
+          "path": "app/admin/actions.ts",
           "type": "DEPENDENCY",
-          "description": "Button 컴포넌트"
+          "description": "logoutAction 임포트"
         }
       ],
-      "implementationGuide": "InvoiceStatusBadge: props { status: InvoiceStatus }, variant 매핑: draft→secondary, sent→default, accepted→outline(녹색 계열 텍스트), expired→destructive\n\nInvoiceHeader: props { invoice: Pick<Invoice, 'title'|'issue_date'|'due_date'|'status'> }, Card 래핑, formatDate 사용\n\nSenderInfo/ClientInfo: props { invoice: Pick<Invoice, ...> }, Card 래핑\n\nItemsTable: props { items: InvoiceItem[] }, shadcn Table, thead scope='col', formatKRW/formatQuantity 사용, 시맨틱 caption\n\nTotalSection: props { total_amount: number }, formatKRW, aria-label='합계 금액'\n\nMemoSection: props { memo: string | null }, null이면 return null\n\nPdfDownloadButton: 'use client', onClick={() => window.print()}, className='no-print'",
-      "verificationCriteria": "1. 8개 파일 모두 생성됨\n2. PdfDownloadButton.tsx만 'use client' 선언, 나머지 7개는 서버 컴포넌트\n3. any 타입 없음\n4. tsc --noEmit 오류 없음\n5. MemoSection은 memo=null 시 null 반환 확인\n6. ItemsTable에 시맨틱 caption과 th scope='col' 적용",
-      "analysisResult": "Phase 1-C UI/UX 완성: 더미 데이터 기반으로 견적서 UI 컴포넌트, 견적서 페이지, 랜딩 페이지를 순서대로 구현한다. lib/types.ts(Invoice 타입), lib/format.ts(formatKRW/formatDate), components/common/ 를 적극 재사용하며 any 금지·한국어 UI·서버 컴포넌트 기본 원칙을 따른다.",
-      "summary": "8개 파일 모두 생성. InvoiceStatusBadge: status→variant 매핑, accepted에 green 텍스트 클래스. InvoiceHeader: Pick 타입, formatDate, 유효기간 조건부 표시. SenderInfo/ClientInfo: Card 래핑, 연락처 조건부. ItemsTable: shadcn Table, caption sr-only, th scope=col, formatKRW/formatQuantity. TotalSection: aria-label 합계금액. MemoSection: null 시 return null. PdfDownloadButton: 'use client', no-print 클래스. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T08:46:25.233Z"
+      "implementationGuide": "1. app/admin/layout.tsx 신규:\n   - 공용 Header/Footer 없는 전용 레이아웃\n   - 상단 바: 'Invoice Web 어드민' 제목 + 로그아웃 버튼(form+logoutAction)\n   - children 렌더링\n2. app/admin/page.tsx: redirect('/admin/invoices')\n3. app/admin/invoices/page.tsx (서버 컴포넌트):\n   - searchParams: Promise<{ status?: string }> await 처리 (Next.js 16)\n   - export const dynamic = 'force-dynamic'\n   - listAllInvoices() 호출\n   - status 파라미터로 클라이언트 측 필터링 또는 서버 측 필터링\n   - StatusFilter 클라이언트 컴포넌트 + AdminInvoiceTable 렌더링\n4. components/admin/AdminInvoiceTable.tsx (서버 컴포넌트):\n   - props: invoices: Invoice[]\n   - shadcn Table 사용\n   - 컬럼: 견적서 제목 | 고객사 | 발행일 | 상태(InvoiceStatusBadge) | 금액(formatKRW) | 액션\n   - 각 행에 견적서 링크(/invoice/[slug]) + StatusUpdateSelect",
+      "verificationCriteria": "1. /admin/invoices 접근 시 전체 견적서 목록 표시 (draft 포함)\n2. 어드민 레이아웃에 공용 Header/Footer 없음\n3. 로그아웃 버튼 클릭 시 /admin/login 이동\n4. 각 견적서 행에 /invoice/[slug] 링크\n5. tsc --noEmit 오류 없음",
+      "analysisResult": "TASK-014 어드민 대시보드: Next.js 16 App Router 기반. 환경변수 패스워드 인증(HMAC + HttpOnly 쿠키) + middleware.ts 경로 보호 + listAllInvoices/updateInvoiceStatus 노션 API 확장 + 견적서 목록/상태 필터/상태 변경 UI. 기존 InvoiceStatusBadge, formatKRW, shadcn/ui Table 재사용. 서버 컴포넌트 우선, 클라이언트 컴포넌트 최소화. searchParams는 Next.js 16에서 Promise 타입.",
+      "summary": "어드민 레이아웃 및 견적서 목록 페이지 구현 완료. ConditionalShell 클라이언트 컴포넌트로 /admin/* 경로에서 공용 Header/Footer 숨김 처리. app/admin/layout.tsx에 어드민 전용 상단바(로그아웃 버튼 포함). app/admin/page.tsx는 /admin/invoices로 리다이렉트. app/admin/invoices/page.tsx는 force-dynamic + listAllInvoices() + searchParams: Promise 패턴 적용. AdminInvoiceTable은 shadcn Table + InvoiceStatusBadge + formatKRW/formatDate 재사용. draft 제외 행에만 /invoice/[slug] 링크. 추가로 Next.js 16 Breaking Change 대응: middleware.ts → proxy.ts 마이그레이션 + export 이름 middleware→proxy 변경. npm run build 경고 없이 통과.",
+      "completedAt": "2026-05-05T00:14:12.523Z"
     },
     {
-      "id": "2fa5ec9a-1c24-40de-9866-2fcf4774bb73",
-      "name": "TASK-006: 더미 데이터 기반 견적서 페이지 UI 완성",
-      "description": "샘플 더미 견적서 3건을 정의하고 app/invoice/[slug]/page.tsx를 실제 컴포넌트 조합으로 교체한다. 인쇄용 CSS도 globals.css에 추가한다.\n\n생성/수정 파일:\n- lib/dummy-invoices.ts: Invoice[] 타입 샘플 데이터 3건\n- app/invoice/[slug]/page.tsx: placeholder → 실제 컴포넌트 조합\n- app/globals.css: @media print 규칙 추가",
-      "notes": "dummy-invoices.ts는 서버 컴포넌트(page.tsx)에서만 import. 클라이언트에 노출되지 않음. generateMetadata도 params: Promise<{slug:string}> await 패턴 적용. @media print의 header/footer 셀렉터는 app/layout.tsx의 <header>/<footer> HTML 태그를 직접 타겟팅.",
+      "id": "0818dc02-8d2a-4bf1-b15e-15416f4b2051",
+      "name": "TASK-014-4: 상태 필터 탭 + 상태 변경 드롭다운 구현",
+      "description": "StatusFilter(상태별 탭, 클라이언트 컴포넌트) + StatusUpdateSelect(상태 변경 드롭다운, 클라이언트 컴포넌트) + updateStatusAction Server Action 구현. Playwright MCP 테스트 체크리스트 포함.",
+      "notes": "useTransition으로 Server Action pending 상태 처리. revalidatePath로 목록 자동 갱신. StatusFilter는 현재 pathname + searchParams 기반으로 active 탭 결정.",
       "status": "completed",
       "dependencies": [
         {
-          "taskId": "7ecff0bd-8bae-4f0e-b179-a3b59eda4c7e"
+          "taskId": "2a9e975d-94a4-4e85-99a5-010095b1018c"
         }
       ],
-      "createdAt": "2026-05-03T08:43:59.111Z",
-      "updatedAt": "2026-05-03T08:49:40.028Z",
+      "createdAt": "2026-05-04T23:27:27.259Z",
+      "updatedAt": "2026-05-05T00:18:34.095Z",
       "relatedFiles": [
         {
-          "path": "lib/dummy-invoices.ts",
-          "type": "CREATE",
-          "description": "더미 견적서 샘플 데이터 3건"
-        },
-        {
-          "path": "app/invoice/[slug]/page.tsx",
+          "path": "app/admin/actions.ts",
           "type": "TO_MODIFY",
-          "description": "placeholder → 실제 컴포넌트 조합으로 교체"
+          "description": "updateStatusAction 추가"
         },
         {
-          "path": "app/globals.css",
+          "path": "components/admin/StatusFilter.tsx",
+          "type": "CREATE",
+          "description": "상태 필터 탭 (클라이언트)"
+        },
+        {
+          "path": "components/admin/StatusUpdateSelect.tsx",
+          "type": "CREATE",
+          "description": "상태 변경 드롭다운 (클라이언트)"
+        },
+        {
+          "path": "app/admin/invoices/page.tsx",
           "type": "TO_MODIFY",
-          "description": "@media print 규칙 추가"
+          "description": "StatusFilter + 필터링 로직 연결"
         },
         {
-          "path": "lib/types.ts",
-          "type": "DEPENDENCY",
-          "description": "Invoice 타입 (더미 데이터 타입 검증)"
-        },
-        {
-          "path": "components/invoice/InvoiceHeader.tsx",
-          "type": "DEPENDENCY",
-          "description": "견적서 헤더 컴포넌트"
-        },
-        {
-          "path": "components/invoice/ItemsTable.tsx",
-          "type": "DEPENDENCY",
-          "description": "품목 테이블 컴포넌트"
-        },
-        {
-          "path": "components/invoice/PdfDownloadButton.tsx",
-          "type": "DEPENDENCY",
-          "description": "PDF 다운로드 버튼"
-        }
-      ],
-      "implementationGuide": "lib/dummy-invoices.ts:\n- Invoice[] 배열, 3건: slug 'web-design-2024'(sent), 'mobile-app-2024'(accepted), 'branding-2024'(expired)\n- items: 각 2~3개 InvoiceItem\n- 모든 필드 PRD 스키마 준수\n\napp/invoice/[slug]/page.tsx 교체:\n- DUMMY_INVOICES.find(i => i.slug === slug) → null이면 notFound()\n- 컴포넌트 조합: InvoiceHeader, SenderInfo, ClientInfo, ItemsTable, TotalSection, MemoSection, PdfDownloadButton\n- generateMetadata: title = invoice.title\n- 전체 래퍼에 print:shadow-none 등 인쇄 최적화 클래스\n\napp/globals.css @media print 추가 (@layer base 이후):\n- .no-print { display: none !important }\n- body { background: white !important; color: black !important }\n- header, footer { display: none !important }\n- @page { margin: 1.5cm }",
-      "verificationCriteria": "1. /invoice/web-design-2024 접근 시 견적서 렌더링\n2. /invoice/없는슬러그 접근 시 not-found 페이지 표시\n3. PDF 다운로드 버튼 클릭 시 브라우저 인쇄 다이얼로그 열림\n4. 인쇄 미리보기에서 Header/Footer/버튼 숨김 확인\n5. 3가지 slug 모두 각각 다른 데이터 렌더링\n6. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-C UI/UX 완성: 더미 데이터 기반으로 견적서 UI 컴포넌트, 견적서 페이지, 랜딩 페이지를 순서대로 구현한다. lib/types.ts(Invoice 타입), lib/format.ts(formatKRW/formatDate), components/common/ 를 적극 재사용하며 any 금지·한국어 UI·서버 컴포넌트 기본 원칙을 따른다.",
-      "summary": "dummy-invoices.ts: Invoice[] 타입 3건(sent/accepted/expired), 각 2~3개 품목. page.tsx 교체: DUMMY_INVOICES.find → notFound(), generateMetadata 동적 title, 6개 컴포넌트 조합, PDF 버튼 no-print. globals.css: @media print — .no-print, header/footer 숨김, body 흰 배경, @page margin 1.5cm. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T08:49:40.025Z"
-    },
-    {
-      "id": "4d6d65d1-0fb2-48ef-aee7-2b86a76f8917",
-      "name": "TASK-007: 랜딩 페이지 UI 완성",
-      "description": "현재 스타터킷 소개 내용인 app/page.tsx를 Invoice 서비스(노션 연동 견적서 공유) 소개 페이지로 전면 교체하고 랜딩 전용 컴포넌트 2종을 생성한다.\n\n생성/수정 파일:\n- components/landing/HeroSection.tsx: 서비스 소개 Hero\n- components/landing/FeatureGrid.tsx: 핵심 기능 3개 카드 그리드\n- app/page.tsx: 스타터킷 내용 → Invoice 서비스 소개로 교체",
-      "notes": "app/page.tsx의 현재 내용(Next.js Starter Kit 소개)은 Invoice 서비스와 무관하므로 전면 교체. components/landing/ 디렉토리 신설. 기존 about/dashboard 페이지는 유지(NAV_LINKS에 여전히 포함). lib/constants.ts의 SITE_CONFIG.name은 별도 업데이트하지 않음(TASK-007 범위 초과).",
-      "status": "completed",
-      "dependencies": [],
-      "createdAt": "2026-05-03T08:43:59.111Z",
-      "updatedAt": "2026-05-03T08:46:29.167Z",
-      "relatedFiles": [
-        {
-          "path": "components/landing/HeroSection.tsx",
-          "type": "CREATE",
-          "description": "서비스 소개 Hero 섹션"
-        },
-        {
-          "path": "components/landing/FeatureGrid.tsx",
-          "type": "CREATE",
-          "description": "핵심 기능 3개 카드 그리드"
-        },
-        {
-          "path": "app/page.tsx",
+          "path": "components/admin/AdminInvoiceTable.tsx",
           "type": "TO_MODIFY",
-          "description": "스타터킷 → Invoice 서비스 소개로 전면 교체"
-        },
-        {
-          "path": "components/ui/card.tsx",
-          "type": "DEPENDENCY",
-          "description": "Card 컴포넌트"
-        },
-        {
-          "path": "components/ui/badge.tsx",
-          "type": "DEPENDENCY",
-          "description": "Badge 컴포넌트"
-        }
-      ],
-      "implementationGuide": "HeroSection.tsx (서버 컴포넌트):\n- 서비스명: '노션 기반 견적서 공유 서비스'\n- 서브타이틀: 노션 DB 입력 → URL 공유 → PDF 저장 흐름 설명\n- Badge: '무료 오픈 소스'\n- CTA: 견적서 URL 직접 입력 안내 문구 (버튼 없이 텍스트로)\n\nFeatureGrid.tsx (서버 컴포넌트):\n- 3개 기능 카드: 노션 DB 연동 / 고유 URL 공유 / PDF 다운로드\n- 각 카드: 아이콘(lucide) + 제목 + 설명\n- 기존 app/page.tsx의 3열 그리드 패턴 재사용\n\napp/page.tsx:\n- 기존 스타터킷 FEATURES 배열, Hero 섹션 전면 교체\n- HeroSection + FeatureGrid + 간단한 사용법 섹션 조합\n- 서버 컴포넌트 유지, metadata 업데이트",
-      "verificationCriteria": "1. / 접근 시 Invoice 서비스 소개 페이지 렌더링\n2. 스타터킷 관련 텍스트(Next.js Starter Kit 소개 등) 미노출\n3. 기능 카드 3개(노션 연동/URL 공유/PDF 다운로드) 표시\n4. 다크/라이트 테마 모두에서 정상 렌더링\n5. 모바일 반응형 확인 (그리드 1열→3열)\n6. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-C UI/UX 완성: 더미 데이터 기반으로 견적서 UI 컴포넌트, 견적서 페이지, 랜딩 페이지를 순서대로 구현한다. lib/types.ts(Invoice 타입), lib/format.ts(formatKRW/formatDate), components/common/ 를 적극 재사용하며 any 금지·한국어 UI·서버 컴포넌트 기본 원칙을 따른다.",
-      "summary": "HeroSection/FeatureGrid 서버 컴포넌트 생성. app/page.tsx 전면 교체 — Invoice 서비스 소개(Hero+기능카드+사용방법 3단계). 스타터킷 텍스트 완전 제거. 기능 카드 3개(노션DB/URL공유/PDF). 반응형 그리드(1열→3열). metadata 서비스명으로 업데이트. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T08:46:29.164Z"
-    },
-    {
-      "id": "52483a0d-e014-48bf-8060-8fddf2bc9c1e",
-      "name": "TASK-008: 노션 API 클라이언트 설치 및 환경 변수 설정",
-      "description": "@notionhq/client 패키지를 설치하고 환경 변수 검증 레이어와 노션 DB 설정 가이드를 작성한다.\n\n작업 목록:\n- npm install @notionhq/client\n- .env.example 생성 (키만, 값 없음)\n- lib/env.ts: Zod로 환경 변수 런타임 검증\n- docs/notion-db-setup.md: 노션 Integration 생성 및 DB 속성 설정 가이드",
-      "notes": ".env.local은 .gitignore에 이미 포함되어 있음. .env.example만 커밋. lib/env.ts는 서버 컴포넌트와 lib/notion.ts에서만 import — 클라이언트 번들에 포함되지 않도록 주의.",
-      "status": "completed",
-      "dependencies": [],
-      "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T09:05:42.077Z",
-      "relatedFiles": [
-        {
-          "path": "package.json",
-          "type": "TO_MODIFY",
-          "description": "@notionhq/client 의존성 추가"
-        },
-        {
-          "path": ".env.example",
-          "type": "CREATE",
-          "description": "환경 변수 키 목록 (커밋용)"
-        },
-        {
-          "path": "lib/env.ts",
-          "type": "CREATE",
-          "description": "Zod 환경 변수 런타임 검증"
-        },
-        {
-          "path": "docs/notion-db-setup.md",
-          "type": "CREATE",
-          "description": "노션 DB 설정 가이드"
-        }
-      ],
-      "implementationGuide": "1. npm install @notionhq/client 실행\n2. .env.example 생성: NOTION_TOKEN=\\nNOTION_DATABASE_ID=\n3. lib/env.ts:\n   - import { z } from 'zod'\n   - const envSchema = z.object({ NOTION_TOKEN: z.string().min(1), NOTION_DATABASE_ID: z.string().min(1) })\n   - export const env = envSchema.parse(process.env)\n   - 검증 실패 시 명확한 오류 메시지\n4. docs/notion-db-setup.md:\n   - Integration 생성 방법 (notion.so/my-integrations)\n   - DB 속성 11개 (title/slug/client_name/issue_date/due_date/status/total_amount/memo/items/sender_name/sender_contact) 타입별 생성 방법\n   - Integration과 DB 연결 방법\n   - .env.local에 값 설정 방법",
-      "verificationCriteria": "1. npm run build 시 @notionhq/client import 오류 없음\n2. NOTION_TOKEN 미설정 시 lib/env.ts에서 명확한 오류 발생\n3. .env.example 파일 존재, 값 없이 키만 포함\n4. docs/notion-db-setup.md에 11개 속성 설정 방법 모두 포함\n5. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-D 핵심 기능 구현: 노션 API 연동 전체 파이프라인을 구축한다. lib/notion-schema.ts(NotionInvoicePropertiesSchema), lib/types.ts(Invoice/InvoiceItemSchema)를 재사용하며 any 금지·서버 전용 모듈·한국어 UI 원칙을 따른다. 실행 순서: TASK-008 → TASK-009 → TASK-010 → TASK-011+012(병렬).",
-      "summary": "@notionhq/client 설치 완료. .env.example: NOTION_TOKEN/NOTION_DATABASE_ID 키만 포함. lib/env.ts: Zod safeParse로 검증, 실패 시 명확한 한국어 오류 메시지 throw. docs/notion-db-setup.md: Integration 생성→DB 11개 속성 설정→연결→ID 확인→테스트까지 5단계 가이드 포함. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T09:05:42.068Z"
-    },
-    {
-      "id": "ba36f1a0-2cac-4a2d-bec4-56c6945cfa62",
-      "name": "TASK-009: 노션 API 연동 레이어 구현",
-      "description": "노션 API 클라이언트 싱글톤과 데이터 변환 레이어를 구현한다. 기존 NotionInvoicePropertiesSchema와 Invoice 타입을 재사용하며 any 타입 없이 타입 안전하게 구현한다.\n\n생성 파일:\n- lib/notion.ts: Client 싱글톤, getInvoiceBySlug()\n- lib/notion-mapper.ts: 노션 페이지 → Invoice 변환",
-      "notes": "PageObjectResponse는 @notionhq/client에서 import. notion.ts는 서버 전용 — Next.js 서버 컴포넌트와 route handler에서만 사용. items JSON.parse 실패 시 빈 배열 [] 폴백 처리.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "52483a0d-e014-48bf-8060-8fddf2bc9c1e"
-        }
-      ],
-      "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T10:23:36.900Z",
-      "relatedFiles": [
-        {
-          "path": "lib/notion.ts",
-          "type": "CREATE",
-          "description": "노션 API 클라이언트 싱글톤 및 getInvoiceBySlug"
-        },
-        {
-          "path": "lib/notion-mapper.ts",
-          "type": "CREATE",
-          "description": "노션 페이지 → Invoice 도메인 모델 변환"
-        },
-        {
-          "path": "lib/notion-schema.ts",
-          "type": "DEPENDENCY",
-          "description": "NotionInvoicePropertiesSchema 재사용"
-        },
-        {
-          "path": "lib/types.ts",
-          "type": "DEPENDENCY",
-          "description": "Invoice, InvoiceItemSchema 재사용"
-        },
-        {
-          "path": "lib/env.ts",
-          "type": "DEPENDENCY",
-          "description": "env.NOTION_TOKEN, env.NOTION_DATABASE_ID"
-        }
-      ],
-      "implementationGuide": "lib/notion.ts:\n- import { Client } from '@notionhq/client'\n- import { env } from '@/lib/env'\n- const notion = new Client({ auth: env.NOTION_TOKEN }) — 모듈 레벨 싱글톤\n- export async function getInvoiceBySlug(slug: string): Promise<Invoice | null>\n  - notion.databases.query({ database_id: env.NOTION_DATABASE_ID, filter: { property: 'slug', rich_text: { equals: slug } } })\n  - results[0] 없으면 null 반환\n  - mapNotionPageToInvoice(results[0]) 호출\n  - 오류 시 NotionApiError throw\n\nlib/notion-mapper.ts:\n- import { NotionInvoicePropertiesSchema } from '@/lib/notion-schema'\n- import { InvoiceSchema, InvoiceItemSchema } from '@/lib/types'\n- function mapNotionPageToInvoice(page: PageObjectResponse): Invoice\n  - const props = NotionInvoicePropertiesSchema.parse(page.properties)\n  - title: props.title.title[0]?.plain_text ?? ''\n  - items: InvoiceItemSchema.array().parse(JSON.parse(props.items.rich_text[0]?.plain_text ?? '[]'))\n  - status: InvoiceSchema.shape.status.parse(props.status.select?.name)\n  - due_date: props.due_date.date?.start ?? null\n  - 최종 InvoiceSchema.parse({...}) 로 검증\n\nexport class NotionApiError extends Error { constructor(message: string, public readonly cause?: unknown) { super(message) } }",
-      "verificationCriteria": "1. any 타입 없음\n2. getInvoiceBySlug('존재하는-slug') → Invoice 반환\n3. getInvoiceBySlug('없는-slug') → null 반환\n4. 노션 API 오류 → NotionApiError throw\n5. items JSON 파싱 실패 시 빈 배열 폴백\n6. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-D 핵심 기능 구현: 노션 API 연동 전체 파이프라인을 구축한다. lib/notion-schema.ts(NotionInvoicePropertiesSchema), lib/types.ts(Invoice/InvoiceItemSchema)를 재사용하며 any 금지·서버 전용 모듈·한국어 UI 원칙을 따른다. 실행 순서: TASK-008 → TASK-009 → TASK-010 → TASK-011+012(병렬).",
-      "summary": "lib/notion.ts: Client 싱글톤, getInvoiceBySlug(slug 필터), listInvoices(draft 제외·날짜순), fetchItems(Relation ID 병렬 조회), NotionApiError 클래스. lib/notion-mapper.ts: mapNotionPageToInvoice, mapNotionItemPageToInvoiceItem, getRelationIds 구현. total_amount는 rollup/number 폴백, items JSON 파싱 실패 시 빈 배열. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T10:23:36.900Z"
-    },
-    {
-      "id": "8d0c7fac-e228-443d-aadf-2c4a647b8a29",
-      "name": "TASK-010: 견적서 페이지 실제 노션 데이터 연결",
-      "description": "app/invoice/[slug]/page.tsx에서 더미 데이터를 실제 노션 API 호출로 교체한다. draft 상태 처리, generateMetadata OG 태그, ISR 설정을 완성한다.",
-      "notes": "dummy-invoices.ts는 이 작업 이후 삭제하지 않고 유지 — 개발 환경 테스트용으로 활용 가능. 노션 API 오류(NotionApiError)는 catch하지 않고 Next.js error.tsx로 전파. draft 체크는 page.tsx에서 처리(mapper에서 하지 않음).",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "ba36f1a0-2cac-4a2d-bec4-56c6945cfa62"
-        }
-      ],
-      "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T12:13:08.406Z",
-      "relatedFiles": [
-        {
-          "path": "app/invoice/[slug]/page.tsx",
-          "type": "TO_MODIFY",
-          "description": "더미 데이터 → 실제 노션 API 호출로 교체"
+          "description": "StatusUpdateSelect 연결"
         },
         {
           "path": "lib/notion.ts",
           "type": "DEPENDENCY",
-          "description": "getInvoiceBySlug"
+          "description": "updateInvoiceStatus 함수"
         },
         {
-          "path": "lib/dummy-invoices.ts",
-          "type": "REFERENCE",
-          "description": "교체 대상 (삭제하지 않음)"
-        }
-      ],
-      "implementationGuide": "app/invoice/[slug]/page.tsx 수정:\n- import { getInvoiceBySlug } from '@/lib/notion' (dummy-invoices import 제거)\n- const invoice = await getInvoiceBySlug(slug)\n- if (!invoice) notFound()\n- if (invoice.status === 'draft') notFound()\n- generateMetadata: title=invoice.title, description=`${invoice.client_name} 앞 견적서`, openGraph: { title, description }\n- 나머지 컴포넌트 조합은 기존 유지 (InvoiceHeader, SenderInfo 등)\n- export const revalidate = 60 유지",
-      "verificationCriteria": "1. 실제 노션 DB slug로 접근 시 견적서 렌더링\n2. draft 상태 slug 접근 시 not-found 페이지\n3. 없는 slug 접근 시 not-found 페이지\n4. 노션 API 오류 시 error.tsx 표시\n5. revalidate = 60 유지\n6. generateMetadata에 OG 태그 포함\n7. tsc --noEmit 오류 없음",
-      "analysisResult": "Phase 1-D 핵심 기능 구현: 노션 API 연동 전체 파이프라인을 구축한다. lib/notion-schema.ts(NotionInvoicePropertiesSchema), lib/types.ts(Invoice/InvoiceItemSchema)를 재사용하며 any 금지·서버 전용 모듈·한국어 UI 원칙을 따른다. 실행 순서: TASK-008 → TASK-009 → TASK-010 → TASK-011+012(병렬).",
-      "summary": "app/invoice/[slug]/page.tsx 수정 완료. DUMMY_INVOICES → getInvoiceBySlug() 교체, draft 상태 notFound() 처리, generateMetadata에 openGraph 태그 추가, MemoSection 컴포넌트 추가, revalidate=60 유지. tsc --noEmit 오류 없음. 노션 API 오류는 catch 없이 error.tsx로 전파.",
-      "completedAt": "2026-05-03T12:13:08.403Z"
-    },
-    {
-      "id": "2bb596f0-5922-431a-80f9-e26403b30417",
-      "name": "TASK-011b: UI 세련화 — 견적서·랜딩 시각 완성도 향상",
-      "description": "견적서 도메인 컴포넌트와 랜딩 페이지의 시각적 완성도를 높인다. 핵심 5개 항목(StatusBadge 아이콘+색상 / TotalSection 강조 / InvoiceHeader 위계+누락 데이터 / ItemsTable 컨테이너+반응형 / Hero CTA)을 구현하고, 보너스 디테일(tabular-nums, Printer 아이콘, 인쇄 CSS, FeatureGrid 호버 등)을 함께 처리한다.",
-      "notes": "서버 컴포넌트인 InvoiceHeader에 due_date/sender_contact를 추가할 때 SenderInfo와 분리를 유지. ItemsTable key={index} → key={`${item.name}-${index}`}로 교체. InvoiceHeader의 타입은 현재 Pick<Invoice, 'title'|'issue_date'|'status'>인데 due_date 추가 시 타입 확장 필요. 랜딩 CTA 데모 링크는 /invoice/web-design-2024 (lib/dummy-invoices.ts의 실제 슬러그). PdfDownloadButton은 'use client' 유지.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
-        }
-      ],
-      "createdAt": "2026-05-03T12:27:37.805Z",
-      "updatedAt": "2026-05-03T12:29:45.830Z",
-      "relatedFiles": [
-        {
-          "path": "components/invoice/InvoiceStatusBadge.tsx",
-          "type": "TO_MODIFY",
-          "description": "4상태 색상+lucide 아이콘 매핑 재설계"
-        },
-        {
-          "path": "components/invoice/TotalSection.tsx",
-          "type": "TO_MODIFY",
-          "description": "text-3xl + 강조 박스"
-        },
-        {
-          "path": "components/invoice/InvoiceHeader.tsx",
-          "type": "TO_MODIFY",
-          "description": "제목 위계 강화, due_date 노출 추가"
-        },
-        {
-          "path": "components/invoice/SenderInfo.tsx",
-          "type": "TO_MODIFY",
-          "description": "sender_contact 노출 추가"
-        },
-        {
-          "path": "components/invoice/ItemsTable.tsx",
-          "type": "TO_MODIFY",
-          "description": "컨테이너화, 반응형, tabular-nums, 빈 배열 폴백, key 교체"
-        },
-        {
-          "path": "components/invoice/MemoSection.tsx",
-          "type": "TO_MODIFY",
-          "description": "본문 색상 text-foreground, 제목 '비고'로 단순화"
-        },
-        {
-          "path": "components/invoice/PdfDownloadButton.tsx",
-          "type": "TO_MODIFY",
-          "description": "아이콘 Download → Printer, 라벨 보완"
-        },
-        {
-          "path": "components/landing/HeroSection.tsx",
-          "type": "TO_MODIFY",
-          "description": "CTA 버튼 2개(데모 견적서 보기 / GitHub) 추가"
-        },
-        {
-          "path": "components/landing/FeatureGrid.tsx",
-          "type": "TO_MODIFY",
-          "description": "hover:border-primary/50 transition-colors, Badge→번호 교체"
-        },
-        {
-          "path": "app/globals.css",
-          "type": "TO_MODIFY",
-          "description": "@media print 카드 보더·그림자 제거 추가"
-        },
-        {
-          "path": "lib/types.ts",
-          "type": "REFERENCE",
-          "description": "Invoice 타입 확인 (due_date, sender_contact 필드)"
-        },
-        {
-          "path": "lib/dummy-invoices.ts",
-          "type": "REFERENCE",
-          "description": "CTA 데모 슬러그 확인 (web-design-2024)"
-        }
-      ],
-      "implementationGuide": "## 1. InvoiceStatusBadge.tsx\n```tsx\nimport { Send, CheckCircle2, Clock, FileEdit } from 'lucide-react'\nconst STATUS_CONFIG = {\n  draft:    { label: '초안',   className: 'bg-muted text-muted-foreground', Icon: FileEdit },\n  sent:     { label: '발송됨', className: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300', Icon: Send },\n  accepted: { label: '수락됨', className: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300', Icon: CheckCircle2 },\n  expired:  { label: '만료됨', className: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300', Icon: Clock },\n}\n// Badge 대신 직접 span으로: <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium', config.className)}><Icon className='size-3' />{config.label}</span>\n```\n\n## 2. TotalSection.tsx\n```tsx\n<div className='rounded-lg border border-primary/20 bg-primary/5 p-6'>\n  <div className='flex items-baseline justify-between'>\n    <span className='text-sm font-medium text-muted-foreground'>합계 금액</span>\n    <span className='text-3xl font-bold tabular-nums' aria-label={`합계 금액 ${formatKRW(total_amount)}`}>\n      {formatKRW(total_amount)}\n    </span>\n  </div>\n</div>\n```\n\n## 3. InvoiceHeader.tsx\n- 타입: Pick<Invoice, 'title'|'issue_date'|'due_date'|'status'>\n- 제목 영역: <p className='text-xs uppercase tracking-widest text-muted-foreground'>견적서</p> + <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>{title}</h1>\n- dl에 발행일 + due_date 조건부(null이면 '기간 미지정' 또는 row 숨김) 두 컬럼으로\n- Separator 제거\n\n## 4. SenderInfo.tsx\n- 타입: Pick<Invoice, 'sender_name'|'sender_contact'>\n- sender_contact가 null이 아닐 때만 연락처 행 추가\n\n## 5. ItemsTable.tsx\n- 래퍼: <div className='rounded-lg border overflow-hidden'>\n- TableHeader: <TableHeader className='bg-muted/50'>\n- 모바일: 수량/단가 셀에 className='hidden sm:table-cell', 품목명 셀 아래 보조 라인(sm:hidden)으로 수량×단가 표기\n- 금액 셀: className='text-right tabular-nums'\n- key: `${item.name}-${index}`\n- 빈 배열: items.length === 0 → <p className='py-8 text-center text-sm text-muted-foreground'>등록된 품목이 없습니다.</p>\n\n## 6. MemoSection.tsx\n- CardTitle: '비고'\n- 본문: text-sm (text-muted-foreground 제거)\n\n## 7. PdfDownloadButton.tsx\n- import { Printer } from 'lucide-react'\n- <Button ...><Printer className='mr-2 size-4' />PDF로 저장</Button>\n\n## 8. HeroSection.tsx\n- import Link from 'next/link' + Button\n- CTA 영역 추가:\n<div className='flex flex-col sm:flex-row gap-3 justify-center'>\n  <Button asChild size='lg'><Link href='/invoice/web-design-2024'>데모 견적서 보기</Link></Button>\n  <Button asChild size='lg' variant='outline'><Link href='https://github.com/mkkim717/invoice-web' target='_blank'>GitHub</Link></Button>\n</div>\n\n## 9. FeatureGrid.tsx\n- 각 Card에 transition-colors hover:border-primary/50 cursor-default 추가\n- 우상단 Badge를 단계 번호 '01'/'02'/'03'으로 교체 (text-xs font-mono text-muted-foreground)\n\n## 10. globals.css @media print 추가\n```css\n@media print {\n  [data-slot='card'] { border: none !important; box-shadow: none !important; }\n}\n```",
-      "verificationCriteria": "1. InvoiceStatusBadge: 4개 상태 각각 다른 배경색+텍스트색+아이콘으로 렌더링, 다크모드에서도 식별 가능\n2. TotalSection: 금액이 text-3xl로 강조 렌더링, 박스 배경 확인\n3. InvoiceHeader: 제목 크기 이전보다 커짐, due_date 표시(더미 데이터 branding-2024에는 null이므로 해당 케이스도 확인)\n4. ItemsTable: rounded border 래퍼 존재, 320px 폭에서 수량/단가 컬럼 숨김, 금액 tabular-nums 정렬\n5. HeroSection: '데모 견적서 보기' 버튼 클릭 시 /invoice/web-design-2024로 이동\n6. PdfDownloadButton: Printer 아이콘 렌더링\n7. FeatureGrid: 카드 hover 시 보더 색상 변화\n8. 인쇄 미리보기(Ctrl+P): 카드 보더/그림자 사라짐\n9. tsc --noEmit 오류 없음\n10. npm run build 성공",
-      "analysisResult": "Phase 1-D 진행 중. TASK-010 완료(실제 노션 데이터 연결)로 견적서 페이지 핵심 기능은 동작하나, 시각적 완성도가 \"정보 전달은 되지만 정성스럽지 않은\" 단계에 머물러 있음. TASK-011(PDF 인쇄 품질)과 일부 CSS가 겹치므로 UI 세련화를 먼저 처리하는 것이 효율적. any 금지·서버 컴포넌트 기본·한국어 UI·tabular-nums 금액 정렬 원칙 준수.",
-      "summary": "10개 파일 수정 완료. InvoiceStatusBadge: 4상태 bg+text 색상 + lucide 아이콘(FileEdit/Send/CheckCircle2/Clock), 다크모드 대응. TotalSection: text-3xl font-bold tabular-nums + border-primary/20 bg-primary/5 강조 박스. InvoiceHeader: text-2xl sm:text-3xl 제목, '견적서' 라벨, due_date 노출(미지정 폴백). SenderInfo: sender_contact 조건부 표시. ItemsTable: rounded border 래퍼, bg-muted/50 헤더, 모바일 컬럼 숨김 + 보조 라인, tabular-nums, 빈 배열 폴백, key 개선. MemoSection: text-foreground, 제목 '비고'. PdfDownloadButton: Printer 아이콘. HeroSection: 데모/GitHub CTA 2버튼. FeatureGrid: 호버 border, 번호 라벨. globals.css: print 카드 보더 제거. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T12:29:45.827Z"
-    },
-    {
-      "id": "f58f498b-9e07-4457-b510-0e4a0decd7c7",
-      "name": "TASK-011: PDF 인쇄 품질 개선",
-      "description": "기존 window.print() 기반 PDF 기능의 인쇄 품질을 개선한다. PdfDownloadButton은 이미 완성 — CSS 보완과 page.tsx 클래스 추가에 집중.\n\n수정 파일:\n- app/globals.css: @media print 규칙 보완\n- app/invoice/[slug]/page.tsx: 인쇄 최적화 클래스 추가",
-      "notes": "- [data-slot=\"card\"] 셀렉터는 이미 globals.css에 존재 — 별도 블록 생성 말고 기존 블록에 break-inside: avoid만 추가\n- Tailwind CSS v4: print: 변형은 @media print 자동 생성, tailwind.config.js 불필요\n- TypeScript 변경 없음 — tsc 오류 위험 없음\n- body background:white 규칙은 이미 존재 — font-size만 추가",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
-        }
-      ],
-      "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T13:46:40.783Z",
-      "relatedFiles": [
-        {
-          "path": "app/globals.css",
-          "type": "TO_MODIFY",
-          "description": "@media print 블록 확장 — color-adjust, break-inside, font-size, a 스타일",
-          "lineStart": 132,
-          "lineEnd": 155
-        },
-        {
-          "path": "app/invoice/[slug]/page.tsx",
-          "type": "TO_MODIFY",
-          "description": "최외곽 div에 print:max-w-full print:px-0 print:py-4 추가",
-          "lineStart": 43,
-          "lineEnd": 45
-        },
-        {
-          "path": "components/invoice/PdfDownloadButton.tsx",
-          "type": "REFERENCE",
-          "description": "이미 완성 — 수정 불필요 (window.print(), no-print 클래스)"
-        }
-      ],
-      "implementationGuide": "1. app/globals.css @media print 블록 수정:\n   - 기존 [data-slot=\"card\"] 블록에 break-inside: avoid 추가 (페이지 중간 카드 분할 방지)\n   - * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important } 추가 (Badge/배경색 보존)\n   - body에 font-size: 11pt 추가\n   - a { color: inherit !important; text-decoration: none !important } 추가 (링크 스타일 제거)\n\n2. app/invoice/[slug]/page.tsx 최외곽 div className에 추가:\n   - print:max-w-full (인쇄 시 전체 폭 사용)\n   - print:px-0 (인쇄 시 좌우 패딩 제거)\n   - print:py-4 (인쇄 시 상하 패딩 최소화)",
-      "verificationCriteria": "1. 브라우저 인쇄 미리보기(Ctrl+P)에서 InvoiceStatusBadge 배경색 유지\n2. Card 컴포넌트가 페이지 중간에서 잘리지 않음\n3. header/footer/PDF 버튼 인쇄 시 숨김 유지\n4. 견적서 컨테이너가 인쇄 시 전체 폭 사용\n5. tsc --noEmit 오류 없음",
-      "analysisResult": "window.print() 기반 PDF 기능의 인쇄 품질을 CSS만으로 개선한다. 외부 라이브러리 추가 없이 globals.css @media print 블록 확장과 page.tsx Tailwind print: 변형 클래스 추가로 완성.",
-      "summary": "globals.css @media print 블록에 print-color-adjust:exact(배경색 보존), break-inside:avoid(카드 분할 방지), font-size:11pt, a 링크 스타일 제거 추가 완료. page.tsx 컨테이너에 print:max-w-full print:px-0 print:py-4 추가 완료. 기존 header/footer/no-print 숨김 규칙 유지. tsc --noEmit 오류 없음. TypeScript 변경 없이 CSS + className만 수정.",
-      "completedAt": "2026-05-03T13:46:40.776Z"
-    },
-    {
-      "id": "82ced882-b7d8-456d-a7ec-3952dfcf65be",
-      "name": "TASK-012: 에러/예외 처리 강화",
-      "description": "app/global-error.tsx를 신규 생성하고 기존 에러 페이지 2개에 useEffect console.error 로깅을 추가한다.\n\n생성/수정 파일:\n- app/global-error.tsx: 신규 (최상위 에러 경계, html+body 포함, 최소 UI)\n- app/error.tsx: useEffect + console.error('[Route Error]', error) 추가\n- app/invoice/[slug]/error.tsx: useEffect + console.error('[Invoice Error]', error) 추가",
-      "notes": "- global-error.tsx의 body 인라인 스타일은 레이아웃 CSS 미적용 상황 대비 내성 확보용\n- app/error.tsx console prefix는 '[Route Error]'로 — '[Global Error]'는 global-error.tsx 전용\n- 기존 error.tsx 2개의 UI(아이콘, 메시지, 버튼)는 절대 변경 금지\n- TypeScript: any 없음, ErrorProps 패턴 기존과 동일하게 유지",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "8d0c7fac-e228-443d-aadf-2c4a647b8a29"
-        }
-      ],
-      "createdAt": "2026-05-03T09:02:47.093Z",
-      "updatedAt": "2026-05-03T14:11:33.798Z",
-      "relatedFiles": [
-        {
-          "path": "app/global-error.tsx",
-          "type": "CREATE",
-          "description": "최상위 에러 경계 — html/body 포함, ThemeProvider 없는 최소 UI"
-        },
-        {
-          "path": "app/error.tsx",
-          "type": "TO_MODIFY",
-          "description": "useEffect + console.error('[Route Error]') 추가",
-          "lineStart": 1,
-          "lineEnd": 42
-        },
-        {
-          "path": "app/invoice/[slug]/error.tsx",
-          "type": "TO_MODIFY",
-          "description": "useEffect + console.error('[Invoice Error]') 추가",
-          "lineStart": 1,
-          "lineEnd": 41
-        }
-      ],
-      "implementationGuide": "1. app/global-error.tsx 신규 생성:\n   - 'use client'\n   - import { useEffect } from 'react'\n   - props: { error: Error & { digest?: string }; reset: () => void }\n   - useEffect(() => { console.error('[Global Error]', error) }, [error])\n   - return <html lang='ko'><body style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'white', fontFamily:'system-ui,sans-serif', margin:0 }}>\n   - 내부: 경고 이모지(⚠️) + h1 '오류가 발생했습니다' + p 안내 메시지 + error.digest 조건부 + native button(다시 시도) + native a href='/'(홈으로 돌아가기)\n   - shadcn 컴포넌트 사용 금지 (ThemeProvider 없는 환경)\n\n2. app/error.tsx 수정 (UI 변경 없음):\n   - import 줄에 useEffect 추가: import { useEffect } from 'react'\n   - 컴포넌트 바디 최상단에 추가: useEffect(() => { console.error('[Route Error]', error) }, [error])\n\n3. app/invoice/[slug]/error.tsx 수정 (UI 변경 없음):\n   - import 줄에 useEffect 추가: import { useEffect } from 'react'\n   - 컴포넌트 바디 최상단에 추가: useEffect(() => { console.error('[Invoice Error]', error) }, [error])",
-      "verificationCriteria": "1. app/global-error.tsx 존재, html lang='ko' + body 태그 포함\n2. global-error.tsx에 'use client' 선언\n3. global-error.tsx에 useEffect console.error('[Global Error]') 포함\n4. app/error.tsx에 useEffect console.error('[Route Error]') 추가됨\n5. app/invoice/[slug]/error.tsx에 useEffect console.error('[Invoice Error]') 추가됨\n6. 기존 error.tsx 2개의 UI 변경 없음\n7. tsc --noEmit 오류 없음",
-      "analysisResult": "에러 경계 3계층 완성: 루트 레이아웃 크래시 폴백(global-error.tsx 신규) + 라우트 에러 로깅(app/error.tsx) + 견적서 에러 로깅(app/invoice/[slug]/error.tsx). UI 변경 없이 로깅만 추가. 총 3개 파일.",
-      "summary": "app/global-error.tsx 신규 생성 완료 — \"use client\", html lang=\"ko\"+body 포함, useEffect console.error(\"[Global Error]\"), 인라인 스타일 최소 UI(⚠️ 아이콘, 한국어 메시지, 다시시도/홈 버튼), shadcn 미사용. app/error.tsx에 useEffect console.error(\"[Route Error]\") 추가, app/invoice/[slug]/error.tsx에 useEffect console.error(\"[Invoice Error]\") 추가 — 기존 UI 변경 없음. tsc --noEmit 오류 없음.",
-      "completedAt": "2026-05-03T14:11:33.789Z"
-    },
-    {
-      "id": "ad9d7408-3ab7-4c6b-b959-31b9953d6a9b",
-      "name": "TASK-019: react-pdf 의존성 및 Noto Sans KR 폰트 자산 셋업",
-      "description": "@react-pdf/renderer 클라이언트 사이드 PDF 생성 라이브러리를 설치하고, 한글 출력을 위해 Noto Sans KR Regular/Bold ttf 파일을 public/fonts/에 정적 자산으로 배치한다. 이후 InvoicePdfDocument와 PdfDownloadButton이 사용할 기반을 마련한다.\n\n생성/수정 파일:\n- package.json: @react-pdf/renderer 의존성 추가\n- public/fonts/NotoSansKR-Regular.ttf (신규): SIL OFL 라이선스 한글 폰트 Regular 400\n- public/fonts/NotoSansKR-Bold.ttf (신규): SIL OFL 라이선스 한글 폰트 Bold 700\n\n수락 기준:\n- npm run build 통과(의존성 추가만으로 회귀 없음)\n- 두 ttf 파일이 public/fonts/ 경로에 존재하고 dev 서버에서 /fonts/NotoSansKR-Regular.ttf URL로 200 응답",
-      "notes": "ttf 파일은 git에 커밋(폰트 파일 자체는 SIL OFL이라 재배포 자유). 다른 weight나 woff2는 추가하지 않음(견적서에는 Regular/Bold 두 가지면 충분).",
-      "status": "completed",
-      "dependencies": [],
-      "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T14:57:30.549Z",
-      "relatedFiles": [
-        {
-          "path": "package.json",
-          "type": "TO_MODIFY",
-          "description": "@react-pdf/renderer 의존성 추가"
-        },
-        {
-          "path": "public/fonts/NotoSansKR-Regular.ttf",
-          "type": "CREATE",
-          "description": "한글 폰트 Regular 400"
-        },
-        {
-          "path": "public/fonts/NotoSansKR-Bold.ttf",
-          "type": "CREATE",
-          "description": "한글 폰트 Bold 700"
-        }
-      ],
-      "implementationGuide": "1) npm install @react-pdf/renderer 실행\\n2) Google Fonts 또는 공식 소스에서 Noto Sans KR Regular(weight 400) / Bold(weight 700) ttf 파일을 받아 public/fonts/ 디렉토리에 NotoSansKR-Regular.ttf, NotoSansKR-Bold.ttf 정확한 파일명으로 배치\\n3) npm run dev로 /fonts/NotoSansKR-Regular.ttf, /fonts/NotoSansKR-Bold.ttf 둘 다 브라우저에서 200 응답 확인\\n4) npm run build 회귀 없음 확인",
-      "verificationCriteria": "1) /fonts/NotoSansKR-Regular.ttf 와 /fonts/NotoSansKR-Bold.ttf 가 dev 서버에서 200 OK로 서빙된다\\n2) package.json dependencies에 @react-pdf/renderer 항목이 추가되었다\\n3) npm run build 가 오류 없이 통과한다",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
-      "summary": "@react-pdf/renderer 설치 완료(53개 패키지 추가). Noto Sans KR Regular/Bold OTF 파일을 public/fonts/에 배치(각 4.5MB/4.6MB, SIL OFL 라이선스). dev 서버에서 /fonts/NotoSansKR-Regular.otf, /fonts/NotoSansKR-Bold.otf 모두 200 OK 응답 확인. npm run build 오류 없이 통과. 파일 확장자는 계획의 .ttf 대신 OTF 포맷 사용(react-pdf는 OTF 동일 지원).",
-      "completedAt": "2026-05-04T14:57:30.540Z"
-    },
-    {
-      "id": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089",
-      "name": "TASK-020: InvoicePdfDocument 신규 컴포넌트 작성 (react-pdf 벡터 PDF 레이아웃)",
-      "description": "@react-pdf/renderer의 Document/Page/View/Text + StyleSheet API로 견적서 PDF 레이아웃을 구현한다. 화면용 8개 컴포넌트와는 출력 매체가 달라 재사용 불가하므로 신규 작성하되, 동일한 정보 배치(헤더 → 발신자/고객 → 항목 테이블 → 합계 → 메모)를 따른다. 한글 폰트는 모듈 최상단 Font.register로 1회 등록한다.\n\n생성 파일:\n- components/invoice/InvoicePdfDocument.tsx (신규): props { invoice: Invoice }\n\n사용/재사용:\n- lib/types.ts 의 Invoice 타입 import\n- lib/format.ts 의 formatKRW, formatDate 재사용\n- InvoiceStatusBadge의 한글 라벨 매핑(draft→임시 / sent→발송됨 / accepted→수락됨 / expired→만료)은 컴포넌트 내부 인라인 매퍼로 작성(재사용 가치보다 스코프 부풀림 회피)\n\n수락 기준:\n- TypeScript any 없음, strict 모드 통과\n- 다크모드와 무관하게 흰 배경/검은 글씨 고정 (StyleSheet에서 backgroundColor: '#ffffff', color: '#111827')\n- 항목이 많아 1페이지를 넘으면 자동 페이지 분할되며 테이블 헤더는 fixed 속성으로 매 페이지 상단에 반복",
-      "notes": "InvoicePdfDocument는 page.tsx에서 직접 import 금지 — 반드시 PdfDownloadButton 내부에서만 dynamic import해야 react-pdf가 서버 번들에 새지 않는다. 'use client' 지시문은 불필요(컴포넌트 자체는 순수 함수, 클라이언트 진입점은 PdfDownloadButton).",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "ad9d7408-3ab7-4c6b-b959-31b9953d6a9b"
-        }
-      ],
-      "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T15:00:57.441Z",
-      "relatedFiles": [
-        {
-          "path": "components/invoice/InvoicePdfDocument.tsx",
-          "type": "CREATE",
-          "description": "react-pdf 견적서 PDF 컴포넌트"
-        },
-        {
-          "path": "lib/types.ts",
+          "path": "components/ui/tabs.tsx",
           "type": "DEPENDENCY",
-          "description": "Invoice / InvoiceItem / InvoiceStatus 타입"
+          "description": "shadcn Tabs (없으면 설치 필요)"
         },
         {
-          "path": "lib/format.ts",
+          "path": "components/ui/select.tsx",
           "type": "DEPENDENCY",
-          "description": "formatKRW / formatDate 재사용"
-        },
-        {
-          "path": "components/invoice/InvoiceStatusBadge.tsx",
-          "type": "REFERENCE",
-          "description": "한글 라벨 매핑 참고"
+          "description": "shadcn Select"
         }
       ],
-      "implementationGuide": "1) 모듈 최상단에서 Font.register({ family: 'NotoSansKR', fonts: [{ src: '/fonts/NotoSansKR-Regular.ttf', fontWeight: 'normal' }, { src: '/fonts/NotoSansKR-Bold.ttf', fontWeight: 'bold' }] }) 호출\\n2) StyleSheet.create로 page(padding 40, fontFamily 'NotoSansKR', fontSize 10, color '#111827', backgroundColor '#ffffff'), headerTitle(fontSize 20 bold), metaRow/metaLabel/metaValue, sectionTitle, tableHeader/tableRow/cellName/cellQty/cellPrice/cellAmount, totalBox, memo 스타일 정의\\n3) <Document title={invoice.title} author={invoice.sender_name}> <Page size='A4' style={styles.page}> 최상위 골격 작성\\n4) Header 영역: title, '견적서' 라벨, issue_date(formatDate), due_date(있으면 formatDate, 없으면 '미지정'), status를 한글 라벨로 변환해 표시\\n5) Sender/Client 2열 그리드: sender_name, sender_contact(있으면), client_name\\n6) ItemsTable: 헤더 View에 fixed prop, 행은 invoice.items.map으로 name/quantity/unit_price(formatKRW)/amount(formatKRW)\\n7) Total: 우측 정렬 박스, total_amount를 formatKRW로 표시\\n8) Memo: invoice.memo가 truthy일 때만 렌더, 제목 '비고' + 본문\\n9) 색상은 hex 팔레트(예: #111827 텍스트, #6b7280 보조 텍스트, #e5e7eb 보더)만 사용. oklch 토큰 사용 금지(react-pdf 미지원)",
-      "verificationCriteria": "1) InvoicePdfDocument를 단독으로 react-pdf의 pdf() 함수에 넘겨 Blob 생성이 성공한다\\n2) 생성된 PDF에서 한글 텍스트가 정상 글자로 보이고 텍스트 드래그·복사가 가능하다(raster 아님)\\n3) invoice.items 길이가 50건 이상인 가상 데이터로도 페이지 분할되고 테이블 헤더가 매 페이지 상단에 반복된다\\n4) any 타입 없이 TypeScript 컴파일 통과",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
-      "summary": "components/invoice/InvoicePdfDocument.tsx 신규 작성 완료. Font.register로 NotoSansKR Regular/Bold .otf 임베딩. Document/Page/View/Text + StyleSheet.create로 견적서 레이아웃 구현(헤더→상태배지→메타→발신자/고객 2열→품목 테이블→합계→메모). 테이블 헤더에 fixed prop 적용(매 페이지 반복). 마지막 행은 테두리 없는 스타일 분기. Invoice 타입 import, formatKRW/formatDate 재사용. 색상 hex 팔레트만 사용(oklch 없음). TypeScript any 없음, npx tsc --noEmit 오류 없음. npm run build 통과. page.tsx에서 직접 import하지 않으므로 서버 번들 분리 유지.",
-      "completedAt": "2026-05-04T15:00:57.435Z"
-    },
-    {
-      "id": "1f207628-05a2-455b-a0e1-3465dc676409",
-      "name": "TASK-021: PdfDownloadButton 재작성 + InvoicePage 연결 + 다운로드 동작 검증",
-      "description": "기존 window.print() 호출 방식을 제거하고, 클릭 시 동적 import로 @react-pdf/renderer와 InvoicePdfDocument를 지연 로드해 Blob을 생성하고 임시 <a download> 클릭으로 즉시 다운로드를 트리거한다. app/invoice/[slug]/page.tsx에서 PdfDownloadButton에 invoice 객체를 prop으로 전달한다. 기존 @media print 규칙은 Ctrl+P 사용자를 위해 그대로 보존한다.\n\n수정 파일:\n- components/invoice/PdfDownloadButton.tsx: 전면 재작성, props { invoice: Invoice }, 클라이언트 컴포넌트 유지\n- app/invoice/[slug]/page.tsx: <PdfDownloadButton invoice={invoice} /> 로 prop 전달\n\n수락 기준:\n- 인쇄 다이얼로그 없이 invoice-{slug}.pdf 가 즉시 다운로드된다\n- isGenerating 상태로 버튼이 잠시 비활성화되며 라벨이 '생성 중...'으로 변경된다\n- 다운로드된 PDF 텍스트가 복사·Ctrl+F 검색 가능하다\n- 다크 모드에서도 PDF는 흰 배경으로 일관된다\n- @media print 규칙은 변경 없음, Ctrl+P 직접 인쇄도 여전히 동작한다\n- npm run build 회귀 없음",
-      "notes": "globals.css의 @media print 블록은 손대지 않는다. invoice 객체는 plain object이므로 RSC → 클라이언트 컴포넌트로 그대로 직렬화 전달 가능.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "8e6644f9-a96d-47d3-92c2-a37c3c5a7089"
-        }
-      ],
-      "createdAt": "2026-05-04T14:44:08.499Z",
-      "updatedAt": "2026-05-04T15:05:49.139Z",
-      "relatedFiles": [
-        {
-          "path": "components/invoice/PdfDownloadButton.tsx",
-          "type": "TO_MODIFY",
-          "description": "window.print() 제거 후 동적 import + Blob 다운로드로 재작성",
-          "lineStart": 1,
-          "lineEnd": 13
-        },
-        {
-          "path": "app/invoice/[slug]/page.tsx",
-          "type": "TO_MODIFY",
-          "description": "<PdfDownloadButton invoice={invoice} /> 로 prop 전달",
-          "lineStart": 47,
-          "lineEnd": 47
-        },
-        {
-          "path": "components/invoice/InvoicePdfDocument.tsx",
-          "type": "DEPENDENCY",
-          "description": "동적 import 대상"
-        },
-        {
-          "path": "app/globals.css",
-          "type": "REFERENCE",
-          "description": "@media print 규칙 보존(변경 금지)"
-        }
-      ],
-      "implementationGuide": "1) PdfDownloadButton 재작성: 'use client' 유지, useState로 isGenerating 관리, lucide Download 아이콘 사용, props { invoice: Invoice }\\n2) 클릭 핸들러: setIsGenerating(true) → const [{ pdf }, { InvoicePdfDocument }] = await Promise.all([import('@react-pdf/renderer'), import('./InvoicePdfDocument')]) → const blob = await pdf(<InvoicePdfDocument invoice={invoice} />).toBlob() → URL.createObjectURL → 임시 <a> 엘리먼트 생성하고 href/download 설정 후 click() 호출 → URL.revokeObjectURL\\n3) 파일명: `invoice-${invoice.slug}.pdf`\\n4) try/catch/finally로 실패 시 console.error('[PDF Download]', err) + alert('PDF 생성에 실패했습니다.'), finally에서 setIsGenerating(false)\\n5) Button에 disabled={isGenerating}, className='no-print' 유지(Ctrl+P 시 버튼 자체는 숨김)\\n6) app/invoice/[slug]/page.tsx 47줄 부근의 <PdfDownloadButton /> 호출을 <PdfDownloadButton invoice={invoice} />로 수정. 다른 변경 없음\\n7) 검증: dev 서버 띄우고 실제 slug로 다운로드 → 인쇄 다이얼로그 없이 파일이 즉시 다운로드되는지, PDF 열어서 한글이 정상 보이고 드래그·복사·검색 가능한지 확인",
-      "verificationCriteria": "1) /invoice/<slug> 에서 PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그가 뜨지 않고 invoice-<slug>.pdf 파일이 즉시 다운로드된다\\n2) 다운로드된 PDF에서 한글이 정상 글자로 보이고 텍스트 드래그·복사·Ctrl+F 검색이 모두 가능하다\\n3) 다운로드 도중 버튼 라벨이 '생성 중...'이며 disabled 상태다\\n4) 다크 모드에서도 PDF는 흰 배경/검은 글씨로 출력된다\\n5) Ctrl+P 직접 인쇄도 기존과 동일하게 동작한다(@media print 보존 검증)\\n6) npm run build 가 오류 없이 통과한다",
-      "analysisResult": "PDF 다운로드 버튼 클릭 시 OS 인쇄 다이얼로그를 거치지 않고 invoice-{slug}.pdf 파일이 즉시 다운로드되도록 변경한다. PDF 내부 텍스트는 복사·검색이 가능해야 한다(raster 금지). 클라이언트 사이드 벡터 PDF 라이브러리 @react-pdf/renderer를 사용하며, 한글 출력을 위해 Noto Sans KR(Regular/Bold) ttf 파일을 public/fonts/에 배치하고 Font.register로 임베딩한다. 작업은 ① 의존성/폰트 자산 셋업, ② InvoicePdfDocument 신규 컴포넌트, ③ PdfDownloadButton 재작성 + page.tsx 연결 + 검증의 3단계로 분할하며 ②는 ①에, ③은 ②에 의존한다. Vercel 무료 플랜 호환을 유지하기 위해 서버 코드는 추가하지 않는다. 기존 @media print 규칙은 Ctrl+P 직접 인쇄 사용자를 위해 보존한다.",
-      "summary": "PdfDownloadButton 전면 재작성 완료. window.print() 제거, 동적 import(@react-pdf/renderer + InvoicePdfDocument) + pdf().toBlob() + URL.createObjectURL + 임시 a 태그 클릭 + URL.revokeObjectURL 흐름으로 즉시 다운로드 구현. page.tsx에 invoice prop 전달. 브라우저 실제 테스트: 인쇄 다이얼로그 없이 PDF가 즉시 다운로드되었고 Adobe Acrobat에서 한글(제목, 발신자, 품목명, 금액)이 정상 렌더링됨. 레이아웃(헤더/상태배지/테이블/합계) 모두 올바르게 출력. TypeScript any 없음, npm run build 통과, globals.css @media print 변경 없음.",
-      "completedAt": "2026-05-04T15:05:49.132Z"
-    },
-    {
-      "id": "46f2bb6b-635e-4eef-aad9-5be8e35860f6",
-      "name": "TASK-013: Vercel 배포 및 운영 환경 검증",
-      "description": "docs/deployment.md를 작성하고, 사용자가 Vercel 대시보드에서 배포를 완료할 수 있도록 단계별 한국어 가이드를 제공한다. 코드 변경 없음 — 빌드 성공 및 GitHub 연결이 이미 확인됨.\n\n생성 파일:\n- docs/deployment.md: Vercel 배포 단계별 가이드 (한국어)\n\nnext.config.ts: 현재 빈 설정으로 충분, 변경 불필요\n\n필수 환경변수(lib/env.ts Zod 검증 대상):\n- NOTION_TOKEN: 노션 Integration Token\n- NOTION_DATABASE_ID: 견적서 DB ID\n선택 환경변수(현재 미사용):\n- NOTION_ITEMS_DATABASE_ID: 품목 DB ID",
-      "notes": "docs/notion-db-setup.md를 크로스 링크하여 노션 Integration 설정 방법 중복 서술 방지. 민감 정보(실제 토큰값)는 예시에 포함하지 않음.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "82ced882-b7d8-456d-a7ec-3952dfcf65be"
-        }
-      ],
-      "createdAt": "2026-05-04T04:36:16.788Z",
-      "updatedAt": "2026-05-04T15:36:54.977Z",
-      "relatedFiles": [
-        {
-          "path": "docs/deployment.md",
-          "type": "CREATE",
-          "description": "Vercel 배포 가이드 (한국어)"
-        },
-        {
-          "path": "next.config.ts",
-          "type": "REFERENCE",
-          "description": "변경 불필요 확인"
-        },
-        {
-          "path": ".env.example",
-          "type": "REFERENCE",
-          "description": "환경변수 목록 참조"
-        },
-        {
-          "path": "lib/env.ts",
-          "type": "REFERENCE",
-          "description": "필수 환경변수 확인 (NOTION_TOKEN, NOTION_DATABASE_ID)"
-        },
-        {
-          "path": "docs/notion-db-setup.md",
-          "type": "REFERENCE",
-          "description": "노션 Integration 설정 크로스 링크"
-        }
-      ],
-      "implementationGuide": "docs/deployment.md를 한국어로 작성. 섹션 구성:\\n1. 사전 준비 — GitHub 연결 확인, 노션 토큰/DB ID 준비\\n2. Vercel 프로젝트 생성 — vercel.com/new, GitHub Import, Framework 자동 감지, 기본값 유지\\n3. 환경 변수 설정 — 표 형식으로 변수명/설명/필수 여부, NEXT_PUBLIC_ 금지 경고, 모든 환경(Production/Preview/Development) 체크 안내\\n4. 배포 실행 — git push 또는 Redeploy\\n5. 배포 후 확인 체크리스트 — 랜딩/견적서/PDF다운로드/404/테마 전환\\n6. (선택) 커스텀 도메인\\n7. 참고: ISR 동작(revalidate=60, 즉시 반영 방법)\\n8. 참고: Vercel 무료 플랜 제약(함수 10초, 대역폭 100GB/월, PDF는 클라이언트 사이드라 함수 시간 무관)",
-      "verificationCriteria": "1) docs/deployment.md 파일이 생성됨\\n2) 필수 환경변수(NOTION_TOKEN, NOTION_DATABASE_ID)와 선택(NOTION_ITEMS_DATABASE_ID)이 정확히 구분되어 안내됨\\n3) 배포 후 확인 체크리스트에 랜딩/견적서/PDF다운로드/404가 포함됨\\n4) ISR revalidate=60 동작 방식과 즉시 갱신 방법이 안내됨\\n5) NEXT_PUBLIC_ 접두사 금지 경고가 명시됨",
-      "analysisResult": "TASK-013은 코드 변경 없이 docs/deployment.md(한국어 Vercel 배포 가이드) 작성이 유일한 산출물이다. next.config.ts는 현재 빈 설정으로 배포에 충분하므로 변경 불필요. lib/env.ts 확인 결과 필수 환경변수는 NOTION_TOKEN, NOTION_DATABASE_ID 2개뿐이며, NOTION_ITEMS_DATABASE_ID는 선택(현재 미사용). 이 정보를 반영해 deployment.md를 정확하게 작성한다.",
-      "summary": "docs/deployment.md 작성 완료. 섹션 구성: 사전 준비 → Vercel 프로젝트 생성 → 환경 변수 설정(필수/선택 표 구분, NEXT_PUBLIC_ 금지 경고, NODE_EVB 오타 삭제 안내 포함) → 첫 배포 → 배포 후 확인 체크리스트(랜딩/견적서/PDF/404/테마/모바일) → 커스텀 도메인 → ISR 동작 방식(revalidate=60 흐름도 + 즉시 갱신 방법) → Vercel 무료 플랜 제약표. docs/notion-db-setup.md 크로스 링크 포함. 민감 정보 미포함. lib/env.ts 기반으로 필수 변수 2개(NOTION_TOKEN, NOTION_DATABASE_ID)와 선택 1개(NOTION_ITEMS_DATABASE_ID) 정확히 구분.",
-      "completedAt": "2026-05-04T15:36:54.974Z"
-    },
-    {
-      "id": "34dd9616-827a-4deb-bcb1-b3fc277a7b0d",
-      "name": "TASK-022: 랜딩 페이지 UI 단순화 (고객 안내 페이지로 교체)",
-      "description": "현재 마케팅 지향의 랜딩 페이지(Hero + FeatureGrid + 사용 방법)를 고객 안내 중심의 단순한 레이아웃으로 전면 교체한다.\n\n목표 레이아웃:\n- 제목: '견적서 조회 시스템'\n- 부제목: '노션 기반 견적서 관리 시스템에 오신 것을 환영합니다'\n- 카드 1 (FileText 아이콘): '견적서 조회 방법' — 1.링크 받기 / 2.견적서 확인 / 3.PDF 다운로드 단계 안내\n- 카드 2 (Download 아이콘): '견적서 URL 예시' — 코드 박스(bg-muted, font-mono) + 설명\n- 카드 3 (AlertCircle 아이콘): '문제가 있나요?' — 단순 텍스트\n\n수정/삭제 파일:\n- app/page.tsx: 전면 교체 (새 인라인 레이아웃)\n- components/landing/HeroSection.tsx: 삭제\n- components/landing/FeatureGrid.tsx: 삭제",
-      "notes": "컴포넌트 파일을 별도로 만들지 않고 app/page.tsx에 인라인으로 작성해 단순성 유지. HeroSection, FeatureGrid는 page.tsx에서만 import됨(다른 곳에서 미사용 확인).",
-      "status": "completed",
-      "dependencies": [],
-      "createdAt": "2026-05-04T15:47:05.240Z",
-      "updatedAt": "2026-05-04T15:53:29.354Z",
-      "relatedFiles": [
-        {
-          "path": "app/page.tsx",
-          "type": "TO_MODIFY",
-          "description": "전면 교체",
-          "lineStart": 1,
-          "lineEnd": 55
-        },
-        {
-          "path": "components/landing/HeroSection.tsx",
-          "type": "TO_MODIFY",
-          "description": "삭제 대상"
-        },
-        {
-          "path": "components/landing/FeatureGrid.tsx",
-          "type": "TO_MODIFY",
-          "description": "삭제 대상"
-        },
-        {
-          "path": "components/ui/card.tsx",
-          "type": "DEPENDENCY",
-          "description": "Card/CardHeader/CardTitle/CardContent 재사용"
-        }
-      ],
-      "implementationGuide": "1) app/page.tsx 전면 교체: HeroSection·FeatureGrid·Separator import 모두 제거\\n2) metadata title을 '견적서 조회 시스템'으로 변경\\n3) 전체 div: min-h-screen bg-muted/30\\n4) 컨테이너: mx-auto max-w-2xl px-4 py-16\\n5) 헤더: text-center, h1 text-3xl font-bold, p mt-2 text-muted-foreground\\n6) 카드 컨테이너: flex flex-col gap-4\\n7) 카드1(FileText): CardHeader pb-3 > CardTitle flex items-center gap-2 text-base; CardContent space-y-4 > 3개 div 각각 p font-semibold + p mt-1 text-sm text-muted-foreground\\n8) 카드2(Download): CardContent > div rounded-md bg-muted px-4 py-3 font-mono text-sm + p mt-3 text-sm text-muted-foreground\\n9) 카드3(AlertCircle): CardContent > p text-sm text-muted-foreground\\n10) &apos; 이스케이프 주의 ('PDF 다운로드' 텍스트 내 작은따옴표)\\n11) HeroSection.tsx, FeatureGrid.tsx 파일 삭제 (Bash rm 또는 git rm)\\n12) npm run build 확인",
-      "verificationCriteria": "1) localhost:3000 접속 시 '견적서 조회 시스템' 제목과 3개 카드가 표시된다\\n2) HeroSection.tsx, FeatureGrid.tsx 파일이 삭제되었다\\n3) npm run build 타입 오류 없음\\n4) 모바일(320px)에서 카드 레이아웃이 깨지지 않는다",
-      "analysisResult": "app/page.tsx를 마케팅용 Hero+FeatureGrid+사용방법 섹션에서 고객 안내 중심의 제목+카드3개 레이아웃으로 전면 교체한다. shadcn Card/CardHeader/CardTitle/CardContent와 lucide-react 아이콘(FileText, Download, AlertCircle)을 재사용한다. HeroSection.tsx, FeatureGrid.tsx는 삭제한다. 'PDF 다운로드' 텍스트의 작은따옴표는 &apos;로 이스케이프한다.",
-      "summary": "app/page.tsx 전면 교체 완료. HeroSection·FeatureGrid·Separator import 제거, metadata title '견적서 조회 시스템'으로 변경, 제목+부제목+카드3개(조회방법/URL예시/문제안내) 레이아웃 인라인 작성. HeroSection.tsx, FeatureGrid.tsx 파일 삭제. npm run build 오류 없이 통과. &apos; 이스케이프 적용.",
-      "completedAt": "2026-05-04T15:53:29.351Z"
+      "implementationGuide": "1. app/admin/actions.ts에 updateStatusAction 추가:\n   - updateStatusAction(pageId: string, status: InvoiceStatus): Server Action\n   - updateInvoiceStatus(pageId, status) 호출\n   - revalidatePath('/admin/invoices')\n2. components/admin/StatusFilter.tsx (클라이언트 컴포넌트):\n   - props: currentStatus?: string\n   - 탭 목록: '전체' | 'draft' | 'sent' | 'accepted' | 'expired'\n   - 클릭 시 useRouter().push('/admin/invoices?status=XXX')\n   - 현재 선택 탭 강조 표시\n   - shadcn Tabs 컴포넌트 활용\n3. components/admin/StatusUpdateSelect.tsx (클라이언트 컴포넌트):\n   - props: pageId: string, currentStatus: InvoiceStatus\n   - shadcn Select 컴포넌트\n   - 변경 시 updateStatusAction(pageId, newStatus) 호출\n   - loading 상태로 비활성화 처리 (useTransition)\n4. app/admin/invoices/page.tsx 업데이트:\n   - StatusFilter에 currentStatus prop 전달\n   - 필터링 로직: status 파라미터에 따라 invoices 배열 필터링\n5. AdminInvoiceTable에 StatusUpdateSelect 연결:\n   - props에 pageId 추가하여 각 행에 StatusUpdateSelect 렌더링\n\n테스트 체크리스트:\n- 로그인 성공/실패\n- 미인증 /admin 접근 시 /admin/login 리다이렉트\n- draft 포함 목록 표시\n- 상태 필터 탭 클릭 시 URL 변경 및 목록 갱신\n- 상태 변경 드롭다운으로 상태 업데이트 후 목록 반영\n- 로그아웃",
+      "verificationCriteria": "1. 상태 필터 탭 클릭 시 해당 상태만 목록에 표시\n2. '전체' 탭 클릭 시 모든 견적서 표시\n3. StatusUpdateSelect로 상태 변경 후 목록 자동 갱신\n4. 상태 변경 중 로딩 표시 및 중복 클릭 방지\n5. tsc --noEmit 오류 없음\n6. npm run build 통과",
+      "analysisResult": "TASK-014 어드민 대시보드: Next.js 16 App Router 기반. 환경변수 패스워드 인증(HMAC + HttpOnly 쿠키) + middleware.ts 경로 보호 + listAllInvoices/updateInvoiceStatus 노션 API 확장 + 견적서 목록/상태 필터/상태 변경 UI. 기존 InvoiceStatusBadge, formatKRW, shadcn/ui Table 재사용. 서버 컴포넌트 우선, 클라이언트 컴포넌트 최소화. searchParams는 Next.js 16에서 Promise 타입.",
+      "summary": "상태 필터 탭 + 상태 변경 드롭다운 구현 완료. updateStatusAction Server Action 추가(updateInvoiceStatus 호출 + revalidatePath). StatusFilter: shadcn Tabs 기반 전체/초안/발송됨/수락됨/만료됨 탭, useRouter로 URL 변경. StatusUpdateSelect: shadcn Select + useTransition으로 pending 중 비활성화, updateStatusAction 호출. AdminInvoiceTable 업데이트: StatusUpdateSelect 연결, draft 제외 제목에 견적서 링크 이동. app/admin/invoices/page.tsx에 StatusFilter 추가. npm run build 경고 없이 통과.",
+      "completedAt": "2026-05-05T00:18:34.084Z"
     }
   ]
 }

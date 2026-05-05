@@ -20,7 +20,7 @@
 
 ```
 Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  100%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-022)
-Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░░░    0%  (TASK-014 ~ TASK-018)
+Phase 2 (기능 확장)  ▓▓▓▓░░░░░░░░░░░░░░░░   20%  (TASK-014 ~ TASK-018)
 ```
 
 상태 범례
@@ -311,14 +311,28 @@ Phase 2 (기능 확장)  ░░░░░░░░░░░░░░░░░░�
 
 MVP 검증 후 운영 효율성과 사용자 경험을 끌어올리는 확장 기능들입니다.
 
-- **TASK-014: 어드민 대시보드** [TODO]
-  - 관련 파일: `app/admin/page.tsx`, `app/admin/invoices/page.tsx`, `lib/auth.ts`
-  - 구현 사항
-    - 발행된 견적서 목록 조회 (노션 DB 기반)
-    - 상태별 필터링 (`draft / sent / accepted / expired`)
-    - 상태 변경 액션 (노션 페이지 업데이트 API 호출)
-    - 간단한 인증(예: NextAuth 또는 Basic Auth) 적용
-    - **Playwright MCP로 권한/CRUD 시나리오 테스트**
+- **TASK-014: 어드민 대시보드** [완료]
+  - 관련 파일
+    - `proxy.ts` (Next.js 16 경로 보호), `lib/auth.ts` (HMAC 토큰), `lib/env.ts`
+    - `app/admin/actions.ts`, `app/admin/login/page.tsx`, `app/admin/layout.tsx`
+    - `app/admin/page.tsx`, `app/admin/invoices/page.tsx`
+    - `components/admin/AdminInvoiceTable.tsx`
+    - `components/admin/StatusFilter.tsx`, `components/admin/StatusUpdateSelect.tsx`
+    - `lib/notion.ts` (`listAllInvoices`, `updateInvoiceStatus` 추가)
+  - 완료 항목 (TASK-014-1 ~ TASK-014-4)
+    - [x] `ADMIN_PASSWORD` / `ADMIN_SECRET` 환경변수 Zod 검증 (`lib/env.ts`)
+    - [x] HMAC-SHA256 토큰 유틸리티 (`lib/auth.ts`, Web Crypto API, Edge Runtime 호환)
+    - [x] `/admin/*` 경로 보호 (`proxy.ts` — Next.js 16 proxy 컨벤션으로 마이그레이션)
+    - [x] 로그인/로그아웃 Server Actions (`app/admin/actions.ts`)
+    - [x] 로그인 페이지 (`/admin/login`, 에러 표시, searchParams: Promise 패턴)
+    - [x] `listAllInvoices()` — draft 포함 전체 견적서 조회
+    - [x] `updateInvoiceStatus()` — 노션 `rich_text` status 업데이트
+    - [x] 어드민 전용 레이아웃 (`ConditionalShell`로 공용 Header/Footer 숨김)
+    - [x] 견적서 목록 페이지 (`/admin/invoices`, `force-dynamic`, searchParams: Promise)
+    - [x] `AdminInvoiceTable` — shadcn Table, `InvoiceStatusBadge`, `formatKRW`, 견적서 링크
+    - [x] `StatusFilter` — shadcn Tabs 기반 5개 탭, `useRouter`로 URL 변경
+    - [x] `StatusUpdateSelect` — shadcn Select + `useTransition` 비활성화, `updateStatusAction` 호출
+    - [x] `updateStatusAction` Server Action — 노션 상태 업데이트 + `revalidatePath`
 
 - **TASK-015: 이메일 발송 기능** [TODO]
   - 관련 파일: `lib/email.ts`, `app/api/invoices/[slug]/send/route.ts`

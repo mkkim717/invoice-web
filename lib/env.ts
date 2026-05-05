@@ -3,6 +3,8 @@ import { z } from "zod";
 const envSchema = z.object({
   NOTION_TOKEN: z.string().min(1, "NOTION_TOKEN이 설정되지 않았습니다."),
   NOTION_DATABASE_ID: z.string().min(1, "NOTION_DATABASE_ID가 설정되지 않았습니다."),
+  ADMIN_PASSWORD: z.string().min(1, "ADMIN_PASSWORD가 설정되지 않았습니다."),
+  ADMIN_SECRET: z.string().min(1, "ADMIN_SECRET이 설정되지 않았습니다."),
 });
 
 const parsed = envSchema.safeParse(process.env);
