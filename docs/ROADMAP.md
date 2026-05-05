@@ -20,7 +20,7 @@
 
 ```
 Phase 1 (MVP)        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  100%  (TASK-001 ~ TASK-013, TASK-004.5, TASK-019 ~ TASK-022)
-Phase 2 (기능 확장)  ▓▓▓▓░░░░░░░░░░░░░░░░   20%  (TASK-014 ~ TASK-018)
+Phase 2 (기능 확장)  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  100%  (TASK-014 ~ TASK-016, TASK-018)
 ```
 
 상태 범례
@@ -334,40 +334,43 @@ MVP 검증 후 운영 효율성과 사용자 경험을 끌어올리는 확장 �
     - [x] `StatusUpdateSelect` — shadcn Select + `useTransition` 비활성화, `updateStatusAction` 호출
     - [x] `updateStatusAction` Server Action — 노션 상태 업데이트 + `revalidatePath`
 
-- **TASK-015: 이메일 발송 기능** [TODO]
-  - 관련 파일: `lib/email.ts`, `app/api/invoices/[slug]/send/route.ts`
-  - 구현 사항
-    - Resend 또는 SendGrid 연동
-    - 견적서 URL과 요약 정보를 담은 HTML 메일 템플릿
-    - 발송 후 노션 상태를 `sent`로 자동 업데이트
-    - 발송 로그 기록
-    - **Playwright MCP + 메일 수신함 가짜 서버로 발송 검증**
+- **TASK-015: 이메일 발송 기능** [완료]
+  - 관련 파일
+    - `components/admin/SendEmailButton.tsx` (mailto: 링크 버튼)
+    - `components/admin/AdminInvoiceTable.tsx` (이메일 열 추가)
+  - 완료 항목
+    - [x] `SendEmailButton` 클라이언트 컴포넌트 — `window.location.origin`으로 견적서 URL 구성
+    - [x] `encodeURIComponent`로 한글 subject/body 인코딩
+    - [x] `window.open(mailto:)` 으로 기본 이메일 앱 실행 (외부 서비스·환경변수 불필요)
+    - [x] 이메일 본문: 고객사명·제목·금액·견적서 URL 포함
+    - [x] `AdminInvoiceTable` 이메일 열 추가, draft 행 제외
 
-- **TASK-016: 고객 수락(Accept) 기능** [TODO]
-  - 관련 파일: `components/invoice/AcceptButton.tsx`, `app/api/invoices/[slug]/accept/route.ts`
-  - 구현 사항
-    - 견적서 페이지 하단 "수락하기" 버튼 (클라이언트 컴포넌트)
-    - 클릭 시 서버 액션으로 노션 상태 `accepted` 변경
-    - (옵션) 전자 서명 컴포넌트 통합
-    - 중복 수락 방지 및 만료 견적 차단
-    - **Playwright MCP로 수락 → 상태 전이 → UI 반영 흐름 테스트**
+- **TASK-016: 고객 수락(Accept) 기능** [완료]
+  - 관련 파일
+    - `app/actions/invoice.ts` (acceptInvoiceAction Server Action)
+    - `components/invoice/AcceptButton.tsx` (상태별 UI 클라이언트 컴포넌트)
+    - `app/invoice/[slug]/page.tsx` (AcceptButton 추가)
+  - 완료 항목
+    - [x] `acceptInvoiceAction` Server Action — `updateInvoiceStatus('accepted')` + `revalidatePath`
+    - [x] `AcceptButton`: `sent`→수락 버튼(useTransition), `accepted`→CheckCircle2+수락완료, `expired`→AlertCircle+만료안내
+    - [x] 견적서 페이지 MemoSection 아래 `no-print` 래퍼에 AcceptButton 렌더링
+    - [x] 인쇄 시 AcceptButton 영역 숨김
 
-- **TASK-017: 서버 사이드 고품질 PDF 생성** [TODO]
-  - 관련 파일: `app/api/invoices/[slug]/pdf/route.ts`, `lib/pdf.ts`
-  - 구현 사항
-    - puppeteer 또는 `@vercel/og` + 별도 렌더러 활용
-    - 서버에서 한국어 폰트 임베딩 및 고해상도 렌더링
-    - 다운로드 시 파일명 규칙 정의 (`견적서_{client_name}_{issue_date}.pdf`)
-    - Vercel 서버리스 환경에서의 메모리/실행 시간 한도 고려
-    - **Playwright MCP로 다운로드된 PDF 파일 무결성 검증**
+- **TASK-017: 서버 사이드 고품질 PDF 생성** [삭제됨]
+  - Phase 1(TASK-019~021)에서 `@react-pdf/renderer` 클라이언트 사이드 PDF로 목표 달성
+  - 벡터 PDF, 한글 폰트 임베딩, 텍스트 복사·검색 모두 충족 → 별도 서버 엔드포인트 불필요
 
-- **TASK-018: 견적서 만료 자동 처리** [TODO]
-  - 관련 파일: `app/api/cron/expire/route.ts`, `vercel.json` (Cron)
-  - 구현 사항
-    - Vercel Cron Jobs로 일 1회 실행
-    - 발행일/유효기간 초과 견적을 `expired` 상태로 일괄 변경
-    - 만료된 견적 페이지 접근 시 안내 UI 표출
-    - 운영 모니터링용 로그/알림 구성
+- **TASK-018: 견적서 만료 자동 처리** [완료]
+  - 관련 파일
+    - `vercel.json` (Cron 스케줄: 매일 UTC 01:00)
+    - `app/api/cron/expire/route.ts` (만료 처리 Route Handler)
+    - `lib/env.ts` (CRON_SECRET 선택적 추가)
+  - 완료 항목
+    - [x] `vercel.json` — `0 1 * * *` Cron 스케줄 설정 (KST 매일 오전 10시)
+    - [x] `GET /api/cron/expire` — `CRON_SECRET` 있는 경우만 Authorization 검증 (로컬 개발 우회)
+    - [x] `listAllInvoices()` → `status=sent && due_date < today` 필터 → `Promise.allSettled` 병렬 처리
+    - [x] 처리 결과 `{ processed, errors, date }` JSON 반환
+    - [x] `lib/env.ts` CRON_SECRET optional 추가
 
 ---
 
