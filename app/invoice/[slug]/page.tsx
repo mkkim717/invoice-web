@@ -8,6 +8,7 @@ import { ItemsTable } from "@/components/invoice/ItemsTable";
 import { TotalSection } from "@/components/invoice/TotalSection";
 import { MemoSection } from "@/components/invoice/MemoSection";
 import { PdfDownloadButton } from "@/components/invoice/PdfDownloadButton";
+import { AcceptButton } from "@/components/invoice/AcceptButton";
 
 export const revalidate = 60;
 
@@ -62,6 +63,13 @@ export default async function InvoicePage({
         <ItemsTable items={invoice.items} />
         <TotalSection total_amount={invoice.total_amount} />
         <MemoSection memo={invoice.memo} />
+        <div className="no-print flex justify-center pt-2">
+          <AcceptButton
+            pageId={invoice.id}
+            status={invoice.status}
+            slug={invoice.slug}
+          />
+        </div>
       </div>
     </div>
   );

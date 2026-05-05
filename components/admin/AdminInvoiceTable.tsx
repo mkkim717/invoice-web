@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
 import { StatusUpdateSelect } from "@/components/admin/StatusUpdateSelect";
+import { SendEmailButton } from "@/components/admin/SendEmailButton";
 import { formatKRW, formatDate } from "@/lib/format";
 import type { Invoice } from "@/lib/types";
 
@@ -36,6 +37,7 @@ export function AdminInvoiceTable({ invoices }: AdminInvoiceTableProps) {
             <TableHead>상태</TableHead>
             <TableHead className="text-right">금액</TableHead>
             <TableHead className="text-center">상태 변경</TableHead>
+            <TableHead className="text-center">이메일</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -69,6 +71,16 @@ export function AdminInvoiceTable({ invoices }: AdminInvoiceTableProps) {
                   pageId={invoice.id}
                   currentStatus={invoice.status}
                 />
+              </TableCell>
+              <TableCell className="text-center">
+                {invoice.status !== "draft" && (
+                  <SendEmailButton
+                    slug={invoice.slug}
+                    title={invoice.title}
+                    clientName={invoice.client_name}
+                    totalAmount={invoice.total_amount}
+                  />
+                )}
               </TableCell>
             </TableRow>
           ))}
